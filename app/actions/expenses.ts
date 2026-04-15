@@ -1,7 +1,7 @@
 'use server'
 
 import { FieldValue } from 'firebase-admin/firestore'
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, revalidateTag } from 'next/cache'
 import { getAdminFirestore, verifySession } from '@/lib/firebase/admin'
 import { ExpenseSchema } from '@/lib/validation/schemas'
 import { getAllExpensesForMonth } from '@/lib/db/expenses'
@@ -12,7 +12,8 @@ import { getSavingsGoalForMonth } from '@/lib/db/savingsGoals'
 import { buildMonthlyReport } from '@/lib/domain/calculations'
 import type { ActionResult } from '@/lib/types'
 
-function revalidateAll() {
+function revalidateAll(uid: string) {
+  revalidateTag(`user-${uid}`)
   revalidatePath('/')
   revalidatePath('/expenses')
   revalidatePath('/budgets')
@@ -48,7 +49,7 @@ export async function createExpense(data: unknown): Promise<ActionResult> {
   batch.set(db.doc(`users/${uid}/monthlyReports/${monthYear}`), { ...report, generatedAt: FieldValue.serverTimestamp() })
   await batch.commit()
 
-  revalidateAll()
+  revalidateAll(uid)
   return { success: true }
 }
 
@@ -82,7 +83,7 @@ export async function updateExpense(id: string, data: unknown): Promise<ActionRe
   batch.set(db.doc(`users/${uid}/monthlyReports/${monthYear}`), { ...report, generatedAt: FieldValue.serverTimestamp() })
   await batch.commit()
 
-  revalidateAll()
+  revalidateAll(uid)
   return { success: true }
 }
 
@@ -106,6 +107,6 @@ export async function deleteExpense(id: string, monthYear: string): Promise<Acti
   batch.set(db.doc(`users/${uid}/monthlyReports/${monthYear}`), { ...report, generatedAt: FieldValue.serverTimestamp() })
   await batch.commit()
 
-  revalidateAll()
+  revalidateAll(uid)
   return { success: true }
 }

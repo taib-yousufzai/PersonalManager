@@ -11,7 +11,6 @@ interface ExpenseListProps {
   categories: Category[]
   monthYear: string
   nextPage: string | null
-  /** The cursor used to reach this page; null/undefined means we're on page 1 */
   currentCursor: string | undefined
 }
 
@@ -62,8 +61,19 @@ export default function ExpenseList({
 
   if (editingExpense) {
     return (
-      <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
-        <h2 className="text-base font-medium text-gray-700 mb-4">Edit Expense</h2>
+      <div
+        className="rounded-lg p-4"
+        style={{
+          background: 'var(--obsidian-3)',
+          border: '1px solid var(--border-light)',
+        }}
+      >
+        <h2
+          className="text-xs font-semibold uppercase tracking-wide mb-4"
+          style={{ color: 'var(--muted-light)' }}
+        >
+          Edit Expense
+        </h2>
         <ExpenseForm
           categories={categories}
           existing={editingExpense}
@@ -82,26 +92,43 @@ export default function ExpenseList({
           role="dialog"
           aria-modal="true"
           aria-labelledby="confirm-delete-title"
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ background: 'rgba(0,0,0,0.6)' }}
         >
-          <div className="w-full max-w-sm rounded-lg bg-white p-6 shadow-xl">
-            <h3 id="confirm-delete-title" className="text-base font-semibold text-gray-900">
+          <div
+            className="w-full max-w-sm rounded-lg p-6"
+            style={{
+              background: 'var(--obsidian-3)',
+              border: '1px solid var(--border-light)',
+            }}
+          >
+            <h3
+              id="confirm-delete-title"
+              className="text-base font-semibold"
+              style={{ color: 'var(--ivory)' }}
+            >
               Delete expense?
             </h3>
-            <p className="mt-2 text-sm text-gray-600">
+            <p className="mt-2 text-sm" style={{ color: 'var(--muted-light)' }}>
               This action cannot be undone. The expense will be permanently removed.
             </p>
             <div className="mt-4 flex justify-end gap-3">
               <button
                 onClick={handleDeleteCancel}
-                className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                className="rounded-lg px-4 py-2 text-sm font-medium transition-colors"
+                style={{
+                  background: 'transparent',
+                  color: 'var(--muted-light)',
+                  border: '1px solid var(--border-light)',
+                }}
               >
                 Cancel
               </button>
               <button
                 onClick={handleDeleteConfirm}
                 disabled={isPending}
-                className="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
+                className="rounded-lg px-4 py-2 text-sm font-semibold transition-colors disabled:opacity-50"
+                style={{ background: 'var(--danger)', color: 'var(--ivory)' }}
               >
                 Delete
               </button>
@@ -111,13 +138,29 @@ export default function ExpenseList({
       )}
 
       {expenses.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-gray-300 bg-white p-8 text-center">
-          <p className="text-sm text-gray-500">No expenses recorded for this month.</p>
-          <p className="mt-1 text-xs text-gray-400">Use the form above to add your first expense.</p>
+        <div
+          className="rounded-lg p-8 text-center"
+          style={{
+            background: 'var(--obsidian-3)',
+            border: '1px dashed var(--border-light)',
+          }}
+        >
+          <p className="text-sm" style={{ color: 'var(--muted-light)' }}>
+            No expenses recorded for this month.
+          </p>
+          <p className="mt-1 text-xs" style={{ color: 'var(--muted)' }}>
+            Use the form above to add your first expense.
+          </p>
         </div>
       ) : (
-        <ul className="divide-y divide-gray-100 rounded-lg border border-gray-200 bg-white shadow-sm">
-          {expenses.map((expense) => {
+        <ul
+          className="rounded-lg overflow-hidden"
+          style={{
+            background: 'var(--obsidian-3)',
+            border: '1px solid var(--border-light)',
+          }}
+        >
+          {expenses.map((expense, idx) => {
             const category = categoryMap.get(expense.categoryId)
             const isDeleting = deletingId === expense.id
             return (
@@ -126,29 +169,43 @@ export default function ExpenseList({
                 className={`flex items-start justify-between gap-4 px-4 py-3 transition-opacity ${
                   isDeleting ? 'opacity-40' : ''
                 }`}
+                style={
+                  idx < expenses.length - 1
+                    ? { borderBottom: '1px solid var(--border)' }
+                    : undefined
+                }
               >
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
                     {category ? (
                       <CategoryBadge name={category.name} type={category.type} />
                     ) : (
-                      <span className="text-sm text-gray-400">Unknown category</span>
+                      <span className="text-sm" style={{ color: 'var(--muted)' }}>
+                        Unknown category
+                      </span>
                     )}
                   </div>
-                  <p className="mt-1 text-xs text-gray-500">{formatDate(expense.date)}</p>
+                  <p className="mt-1 text-xs" style={{ color: 'var(--muted-light)' }}>
+                    {formatDate(expense.date)}
+                  </p>
                   {expense.note && (
-                    <p className="mt-0.5 text-xs text-gray-400 truncate">{expense.note}</p>
+                    <p className="mt-0.5 text-xs truncate" style={{ color: 'var(--muted)' }}>
+                      {expense.note}
+                    </p>
                   )}
                 </div>
                 <div className="flex items-center gap-3 shrink-0">
-                  <span className="text-sm font-semibold text-gray-900">
+                  <span className="text-sm font-semibold" style={{ color: 'var(--ivory)' }}>
                     {formatCurrency(expense.amount)}
                   </span>
                   <button
                     onClick={() => setEditingExpense(expense)}
                     disabled={isDeleting || isPending}
                     aria-label="Edit expense"
-                    className="text-xs text-blue-600 hover:text-blue-800 disabled:opacity-40"
+                    className="text-xs transition-colors disabled:opacity-40"
+                    style={{ color: 'var(--gold)' }}
+                    onMouseEnter={e => (e.currentTarget.style.color = 'var(--gold-light)')}
+                    onMouseLeave={e => (e.currentTarget.style.color = 'var(--gold)')}
                   >
                     Edit
                   </button>
@@ -156,7 +213,8 @@ export default function ExpenseList({
                     onClick={() => handleDeleteClick(expense.id)}
                     disabled={isDeleting || isPending}
                     aria-label="Delete expense"
-                    className="text-xs text-red-600 hover:text-red-800 disabled:opacity-40"
+                    className="text-xs transition-colors disabled:opacity-40"
+                    style={{ color: 'var(--danger)' }}
                   >
                     Delete
                   </button>
@@ -167,12 +225,16 @@ export default function ExpenseList({
         </ul>
       )}
 
-      {/* Pagination — cursor-based: nextPage is the last doc ID cursor */}
+      {/* Pagination */}
       <div className="flex justify-end gap-2">
         {currentCursor && (
           <a
             href={`?monthYear=${monthYear}`}
-            className="rounded-md border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50"
+            className="rounded-lg px-3 py-1.5 text-sm transition-colors"
+            style={{
+              color: 'var(--muted-light)',
+              border: '1px solid var(--border-light)',
+            }}
           >
             ← First page
           </a>
@@ -180,7 +242,11 @@ export default function ExpenseList({
         {nextPage && (
           <a
             href={`?monthYear=${monthYear}&page=${nextPage}`}
-            className="rounded-md border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50"
+            className="rounded-lg px-3 py-1.5 text-sm transition-colors"
+            style={{
+              color: 'var(--muted-light)',
+              border: '1px solid var(--border-light)',
+            }}
           >
             Next →
           </a>

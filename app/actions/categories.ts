@@ -1,6 +1,6 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, revalidateTag } from 'next/cache'
 import { z } from 'zod'
 import { verifySession } from '@/lib/firebase/admin'
 import {
@@ -13,6 +13,14 @@ import {
 import { getExpensesByCategory, reassignExpensesToCategory } from '@/lib/db/expenses'
 import { CategorySchema } from '@/lib/validation/schemas'
 import type { ActionResult } from '@/lib/types'
+
+function bust(uid: string) {
+  revalidateTag(`user-${uid}`)
+  revalidatePath('/')
+  revalidatePath('/expenses')
+  revalidatePath('/budgets')
+  revalidatePath('/settings')
+}
 
 export async function createCategory(data: unknown): Promise<ActionResult> {
   const uid = await verifySession()
@@ -30,10 +38,7 @@ export async function createCategory(data: unknown): Promise<ActionResult> {
   }
 
   await dbCreateCategory(uid, { name, type, isDefault: false })
-  revalidatePath('/')
-  revalidatePath('/expenses')
-  revalidatePath('/budgets')
-  revalidatePath('/settings')
+  bust(uid)
   return { success: true }
 }
 
@@ -51,10 +56,7 @@ export async function renameCategory(id: string, name: string): Promise<ActionRe
   }
 
   await updateCategory(uid, id, { name })
-  revalidatePath('/')
-  revalidatePath('/expenses')
-  revalidatePath('/budgets')
-  revalidatePath('/settings')
+  bust(uid)
   return { success: true }
 }
 
@@ -79,10 +81,7 @@ export async function deleteCategory(id: string, reassignTo?: string): Promise<A
   }
 
   await dbDeleteCategory(uid, id)
-  revalidatePath('/')
-  revalidatePath('/expenses')
-  revalidatePath('/budgets')
-  revalidatePath('/settings')
+  bust(uid)
   return { success: true }
 }
 

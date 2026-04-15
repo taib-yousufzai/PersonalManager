@@ -1,7 +1,6 @@
 import { redirect } from 'next/navigation'
 import { verifySession } from '@/lib/firebase/admin'
-import { getExpensesForMonth } from '@/lib/db/expenses'
-import { getCategories } from '@/lib/db/categories'
+import { getCachedExpenses, getCachedCategories } from '@/lib/cache'
 import { ExpenseForm } from '@/components/forms/ExpenseForm'
 import ExpenseList from './ExpenseList'
 
@@ -30,20 +29,35 @@ export default async function ExpensesPage({
   const page = typeof params.page === 'string' ? params.page : undefined
 
   const [{ expenses, nextPage }, categories] = await Promise.all([
-    getExpensesForMonth(uid, monthYear, page),
-    getCategories(uid),
+    getCachedExpenses(uid, monthYear, page),
+    getCachedCategories(uid),
   ])
 
   return (
     <div className="px-4 py-6 md:px-8 max-w-3xl mx-auto space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-gray-900">Expenses</h1>
-        <p className="text-sm text-gray-500 mt-1">{monthYear}</p>
+        <h1 className="text-2xl font-semibold" style={{ color: 'var(--ivory)' }}>
+          Expenses
+        </h1>
+        <p className="text-sm mt-1" style={{ color: 'var(--muted-light)' }}>
+          {monthYear}
+        </p>
       </div>
 
       {/* Add expense form */}
-      <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
-        <h2 className="text-base font-medium text-gray-700 mb-4">Add Expense</h2>
+      <div
+        className="rounded-lg p-4"
+        style={{
+          background: 'var(--obsidian-3)',
+          border: '1px solid var(--border-light)',
+        }}
+      >
+        <h2
+          className="text-xs font-semibold uppercase tracking-wide mb-4"
+          style={{ color: 'var(--muted-light)' }}
+        >
+          Add Expense
+        </h2>
         <ExpenseForm categories={categories} />
       </div>
 

@@ -1,6 +1,5 @@
 import { verifySession } from '@/lib/firebase/admin'
-import { getMonthlyReport } from '@/lib/db/monthlyReports'
-import { getCategories } from '@/lib/db/categories'
+import { getCachedMonthlyReport, getCachedCategories } from '@/lib/cache'
 import { generateInsights } from '@/lib/domain/insights'
 import MetricCard from '@/components/ui/MetricCard'
 import BudgetProgressBar from '@/components/ui/BudgetProgressBar'
@@ -26,8 +25,8 @@ export default async function DashboardPage() {
 
   const monthYear = getCurrentMonth()
   const [report, categories] = await Promise.all([
-    getMonthlyReport(uid, monthYear),
-    getCategories(uid),
+    getCachedMonthlyReport(uid, monthYear),
+    getCachedCategories(uid),
   ])
   const insights = report ? generateInsights(report) : []
 
@@ -36,17 +35,27 @@ export default async function DashboardPage() {
   return (
     <div className="px-4 py-6 md:px-8 max-w-5xl mx-auto space-y-8">
       <div>
-        <h1 className="text-2xl font-semibold text-gray-900">Dashboard</h1>
-        <p className="text-sm text-gray-500 mt-1">{monthYear}</p>
+        <h1 className="text-2xl font-semibold" style={{ color: 'var(--ivory)' }}>
+          Dashboard
+        </h1>
+        <p className="text-sm mt-1" style={{ color: 'var(--muted-light)' }}>
+          {monthYear}
+        </p>
       </div>
 
       {/* No-income prompt */}
       {noIncome && (
-        <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
-          <p className="text-sm font-medium text-blue-800">
+        <div
+          className="rounded-lg p-4"
+          style={{
+            background: 'rgba(201,168,76,0.08)',
+            border: '1px solid rgba(201,168,76,0.25)',
+          }}
+        >
+          <p className="text-sm font-medium" style={{ color: 'var(--gold-light)' }}>
             No income recorded for this month yet.
           </p>
-          <p className="text-sm text-blue-700 mt-1">
+          <p className="text-sm mt-1" style={{ color: 'var(--muted-light)' }}>
             Add your income below to start tracking your finances.
           </p>
         </div>
@@ -54,7 +63,12 @@ export default async function DashboardPage() {
 
       {/* Metric cards */}
       <section>
-        <h2 className="text-base font-medium text-gray-700 mb-3">Monthly Summary</h2>
+        <h2
+          className="text-xs font-semibold uppercase tracking-wide mb-3"
+          style={{ color: 'var(--muted-light)' }}
+        >
+          Monthly Summary
+        </h2>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           <MetricCard label="Total Income" value={report?.totalIncome ?? 0} />
           <MetricCard label="Total Expenses" value={report?.totalExpenses ?? 0} />
@@ -68,8 +82,19 @@ export default async function DashboardPage() {
       {/* Budget progress bars */}
       {report && report.budgetUtilization.length > 0 && (
         <section>
-          <h2 className="text-base font-medium text-gray-700 mb-3">Budget Utilization</h2>
-          <div className="space-y-4 rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+          <h2
+            className="text-xs font-semibold uppercase tracking-wide mb-3"
+            style={{ color: 'var(--muted-light)' }}
+          >
+            Budget Utilization
+          </h2>
+          <div
+            className="space-y-4 rounded-lg p-4"
+            style={{
+              background: 'var(--obsidian-3)',
+              border: '1px solid var(--border-light)',
+            }}
+          >
             {report.budgetUtilization.map((b) => (
               <BudgetProgressBar
                 key={b.categoryId}
@@ -85,7 +110,12 @@ export default async function DashboardPage() {
       {/* Insights */}
       {insights.length > 0 && (
         <section>
-          <h2 className="text-base font-medium text-gray-700 mb-3">Insights</h2>
+          <h2
+            className="text-xs font-semibold uppercase tracking-wide mb-3"
+            style={{ color: 'var(--muted-light)' }}
+          >
+            Insights
+          </h2>
           <div className="space-y-3">
             {insights.map((insight, i) => (
               <InsightCard key={i} insight={insight} />
@@ -96,12 +126,34 @@ export default async function DashboardPage() {
 
       {/* Quick entry forms */}
       <section className="grid gap-6 md:grid-cols-2">
-        <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
-          <h2 className="text-base font-medium text-gray-700 mb-4">Add Income</h2>
+        <div
+          className="rounded-lg p-4"
+          style={{
+            background: 'var(--obsidian-3)',
+            border: '1px solid var(--border-light)',
+          }}
+        >
+          <h2
+            className="text-xs font-semibold uppercase tracking-wide mb-4"
+            style={{ color: 'var(--muted-light)' }}
+          >
+            Add Income
+          </h2>
           <IncomeForm />
         </div>
-        <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
-          <h2 className="text-base font-medium text-gray-700 mb-4">Add Expense</h2>
+        <div
+          className="rounded-lg p-4"
+          style={{
+            background: 'var(--obsidian-3)',
+            border: '1px solid var(--border-light)',
+          }}
+        >
+          <h2
+            className="text-xs font-semibold uppercase tracking-wide mb-4"
+            style={{ color: 'var(--muted-light)' }}
+          >
+            Add Expense
+          </h2>
           <ExpenseForm categories={categories} />
         </div>
       </section>

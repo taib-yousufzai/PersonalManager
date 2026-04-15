@@ -1,8 +1,6 @@
 import { redirect } from 'next/navigation'
 import { verifySession } from '@/lib/firebase/admin'
-import { getBudgetsForMonth } from '@/lib/db/budgets'
-import { getMonthlyReport } from '@/lib/db/monthlyReports'
-import { getCategories } from '@/lib/db/categories'
+import { getCachedBudgets, getCachedMonthlyReport, getCachedCategories } from '@/lib/cache'
 import { BudgetForm } from '@/components/forms/BudgetForm'
 import BudgetList from './BudgetList'
 
@@ -30,9 +28,9 @@ export default async function BudgetsPage({
     typeof params.monthYear === 'string' ? params.monthYear : getCurrentMonth()
 
   const [budgets, report, categories] = await Promise.all([
-    getBudgetsForMonth(uid, monthYear),
-    getMonthlyReport(uid, monthYear),
-    getCategories(uid),
+    getCachedBudgets(uid, monthYear),
+    getCachedMonthlyReport(uid, monthYear),
+    getCachedCategories(uid),
   ])
 
   const utilization = report?.budgetUtilization ?? []
@@ -40,13 +38,22 @@ export default async function BudgetsPage({
   return (
     <div className="px-4 py-6 md:px-8 max-w-3xl mx-auto space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-gray-900">Budgets</h1>
-        <p className="text-sm text-gray-500 mt-1">{monthYear}</p>
+        <h1 className="text-2xl font-semibold" style={{ color: 'var(--ivory)' }}>
+          Budgets
+        </h1>
+        <p className="text-sm mt-1" style={{ color: 'var(--muted-light)' }}>
+          {monthYear}
+        </p>
       </div>
 
       {/* Budget progress list */}
       <section>
-        <h2 className="text-base font-medium text-gray-700 mb-3">Budget Utilization</h2>
+        <h2
+          className="text-xs font-semibold uppercase tracking-wide mb-3"
+          style={{ color: 'var(--muted-light)' }}
+        >
+          Budget Utilization
+        </h2>
         <BudgetList
           budgets={budgets}
           utilization={utilization}
@@ -56,8 +63,19 @@ export default async function BudgetsPage({
       </section>
 
       {/* Add / set new budget */}
-      <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
-        <h2 className="text-base font-medium text-gray-700 mb-4">Set Budget</h2>
+      <div
+        className="rounded-lg p-4"
+        style={{
+          background: 'var(--obsidian-3)',
+          border: '1px solid var(--border-light)',
+        }}
+      >
+        <h2
+          className="text-xs font-semibold uppercase tracking-wide mb-4"
+          style={{ color: 'var(--muted-light)' }}
+        >
+          Set Budget
+        </h2>
         <BudgetForm categories={categories} />
       </div>
     </div>

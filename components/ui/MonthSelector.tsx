@@ -21,23 +21,40 @@ function formatDisplay(monthYear: string): string {
 export default function MonthSelector() {
   const { selectedMonth, setSelectedMonth } = useMonth()
 
+  const btnStyle: React.CSSProperties = {
+    color: 'var(--muted-light)',
+    background: 'transparent',
+    border: '1px solid var(--border-light)',
+    borderRadius: '0.375rem',
+    padding: '0.25rem 0.5rem',
+    cursor: 'pointer',
+    transition: 'color 0.15s',
+  }
+
   return (
     <div className="flex items-center gap-3">
       <button
         type="button"
         onClick={() => setSelectedMonth(addMonths(selectedMonth, -1))}
-        className="rounded-md p-1.5 text-gray-600 hover:bg-gray-100"
+        style={btnStyle}
+        onMouseEnter={e => (e.currentTarget.style.color = 'var(--gold)')}
+        onMouseLeave={e => (e.currentTarget.style.color = 'var(--muted-light)')}
         aria-label="Previous month"
       >
         ‹
       </button>
-      <span className="min-w-[140px] text-center text-sm font-medium text-gray-800">
+      <span
+        className="min-w-[140px] text-center text-sm font-medium"
+        style={{ color: 'var(--ivory)' }}
+      >
         {formatDisplay(selectedMonth)}
       </span>
       <button
         type="button"
         onClick={() => setSelectedMonth(addMonths(selectedMonth, 1))}
-        className="rounded-md p-1.5 text-gray-600 hover:bg-gray-100"
+        style={btnStyle}
+        onMouseEnter={e => (e.currentTarget.style.color = 'var(--gold)')}
+        onMouseLeave={e => (e.currentTarget.style.color = 'var(--muted-light)')}
         aria-label="Next month"
       >
         ›

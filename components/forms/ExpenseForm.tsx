@@ -11,9 +11,7 @@ type ExpenseFormData = z.infer<typeof ExpenseSchema>
 type FieldErrors = Partial<Record<keyof ExpenseFormData, string[]>>
 
 interface ExpenseFormProps {
-  /** Pre-loaded categories; if omitted the form fetches them */
   categories?: Category[]
-  /** Provide to switch form into edit mode */
   existing?: Expense
   onSuccess?: () => void
   onCancel?: () => void
@@ -21,6 +19,22 @@ interface ExpenseFormProps {
 
 function today(): string {
   return new Date().toISOString().slice(0, 10)
+}
+
+const inputStyle: React.CSSProperties = {
+  background: 'var(--obsidian-4)',
+  color: 'var(--ivory)',
+  border: '1px solid var(--border-light)',
+  outline: 'none',
+  colorScheme: 'dark',
+}
+
+const labelStyle: React.CSSProperties = {
+  color: 'var(--muted-light)',
+  textTransform: 'uppercase',
+  letterSpacing: '0.05em',
+  fontSize: '0.75rem',
+  fontWeight: 600,
 }
 
 export function ExpenseForm({ categories: propCategories, existing, onSuccess, onCancel }: ExpenseFormProps) {
@@ -91,11 +105,13 @@ export function ExpenseForm({ categories: propCategories, existing, onSuccess, o
   return (
     <form onSubmit={handleSubmit} noValidate className="space-y-4">
       {rootError && (
-        <p role="alert" className="text-sm text-red-600">{rootError}</p>
+        <p role="alert" className="text-sm" style={{ color: 'var(--danger)' }}>
+          {rootError}
+        </p>
       )}
 
       <div>
-        <label htmlFor="expense-amount" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="expense-amount" className="block mb-1" style={labelStyle}>
           Amount
         </label>
         <input
@@ -106,29 +122,35 @@ export function ExpenseForm({ categories: propCategories, existing, onSuccess, o
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
           disabled={isPending}
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:opacity-50"
+          className="block w-full rounded-lg px-3 py-2.5 text-sm transition-colors disabled:opacity-50"
+          style={inputStyle}
+          onFocus={e => (e.currentTarget.style.borderColor = 'var(--gold)')}
+          onBlur={e => (e.currentTarget.style.borderColor = 'var(--border-light)')}
           aria-describedby={fieldErrors.amount ? 'expense-amount-error' : undefined}
         />
         {fieldErrors.amount && (
-          <p id="expense-amount-error" role="alert" className="mt-1 text-xs text-red-600">
+          <p id="expense-amount-error" role="alert" className="mt-1 text-xs" style={{ color: 'var(--danger)' }}>
             {fieldErrors.amount[0]}
           </p>
         )}
       </div>
 
       <div>
-        <label htmlFor="expense-category" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="expense-category" className="block mb-1" style={labelStyle}>
           Category
         </label>
         {loadingCategories ? (
-          <p className="mt-1 text-sm text-gray-500">Loading categories…</p>
+          <p className="mt-1 text-sm" style={{ color: 'var(--muted-light)' }}>Loading categories…</p>
         ) : (
           <select
             id="expense-category"
             value={categoryId}
             onChange={(e) => setCategoryId(e.target.value)}
             disabled={isPending}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:opacity-50"
+            className="block w-full rounded-lg px-3 py-2.5 text-sm transition-colors disabled:opacity-50"
+            style={inputStyle}
+            onFocus={e => (e.currentTarget.style.borderColor = 'var(--gold)')}
+            onBlur={e => (e.currentTarget.style.borderColor = 'var(--border-light)')}
             aria-describedby={fieldErrors.categoryId ? 'expense-category-error' : undefined}
           >
             <option value="">Select a category</option>
@@ -140,14 +162,14 @@ export function ExpenseForm({ categories: propCategories, existing, onSuccess, o
           </select>
         )}
         {fieldErrors.categoryId && (
-          <p id="expense-category-error" role="alert" className="mt-1 text-xs text-red-600">
+          <p id="expense-category-error" role="alert" className="mt-1 text-xs" style={{ color: 'var(--danger)' }}>
             {fieldErrors.categoryId[0]}
           </p>
         )}
       </div>
 
       <div>
-        <label htmlFor="expense-date" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="expense-date" className="block mb-1" style={labelStyle}>
           Date
         </label>
         <input
@@ -156,19 +178,25 @@ export function ExpenseForm({ categories: propCategories, existing, onSuccess, o
           value={date}
           onChange={(e) => setDate(e.target.value)}
           disabled={isPending}
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:opacity-50"
+          className="block w-full rounded-lg px-3 py-2.5 text-sm transition-colors disabled:opacity-50"
+          style={inputStyle}
+          onFocus={e => (e.currentTarget.style.borderColor = 'var(--gold)')}
+          onBlur={e => (e.currentTarget.style.borderColor = 'var(--border-light)')}
           aria-describedby={fieldErrors.date ? 'expense-date-error' : undefined}
         />
         {fieldErrors.date && (
-          <p id="expense-date-error" role="alert" className="mt-1 text-xs text-red-600">
+          <p id="expense-date-error" role="alert" className="mt-1 text-xs" style={{ color: 'var(--danger)' }}>
             {fieldErrors.date[0]}
           </p>
         )}
       </div>
 
       <div>
-        <label htmlFor="expense-note" className="block text-sm font-medium text-gray-700">
-          Note <span className="text-gray-400">(optional)</span>
+        <label htmlFor="expense-note" className="block mb-1" style={labelStyle}>
+          Note{' '}
+          <span style={{ color: 'var(--muted)', textTransform: 'none', letterSpacing: 'normal' }}>
+            (optional)
+          </span>
         </label>
         <input
           id="expense-note"
@@ -177,23 +205,31 @@ export function ExpenseForm({ categories: propCategories, existing, onSuccess, o
           onChange={(e) => setNote(e.target.value)}
           disabled={isPending}
           maxLength={200}
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:opacity-50"
+          className="block w-full rounded-lg px-3 py-2.5 text-sm transition-colors disabled:opacity-50"
+          style={inputStyle}
+          onFocus={e => (e.currentTarget.style.borderColor = 'var(--gold)')}
+          onBlur={e => (e.currentTarget.style.borderColor = 'var(--border-light)')}
           aria-describedby={fieldErrors.note ? 'expense-note-error' : undefined}
         />
         {fieldErrors.note && (
-          <p id="expense-note-error" role="alert" className="mt-1 text-xs text-red-600">
+          <p id="expense-note-error" role="alert" className="mt-1 text-xs" style={{ color: 'var(--danger)' }}>
             {fieldErrors.note[0]}
           </p>
         )}
       </div>
 
-      <div className="flex gap-2 justify-end">
+      <div className="flex gap-2 justify-end pt-1">
         {onCancel && (
           <button
             type="button"
             onClick={onCancel}
             disabled={isPending}
-            className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+            className="rounded-lg px-4 py-2.5 text-sm font-medium transition-colors disabled:opacity-50"
+            style={{
+              background: 'transparent',
+              color: 'var(--muted-light)',
+              border: '1px solid var(--border-light)',
+            }}
           >
             Cancel
           </button>
@@ -201,7 +237,8 @@ export function ExpenseForm({ categories: propCategories, existing, onSuccess, o
         <button
           type="submit"
           disabled={isPending || loadingCategories}
-          className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+          className="rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors disabled:opacity-50"
+          style={{ background: 'var(--gold)', color: 'var(--obsidian)' }}
         >
           {isPending ? 'Saving…' : existing ? 'Update' : 'Add Expense'}
         </button>

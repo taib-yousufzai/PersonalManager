@@ -11,7 +11,6 @@ type IncomeFormData = z.infer<typeof IncomeSchema>
 type FieldErrors = Partial<Record<keyof IncomeFormData, string[]>>
 
 interface IncomeFormProps {
-  /** Provide to switch form into edit mode */
   existing?: Income
   onSuccess?: () => void
   onCancel?: () => void
@@ -19,6 +18,22 @@ interface IncomeFormProps {
 
 function today(): string {
   return new Date().toISOString().slice(0, 10)
+}
+
+const inputStyle: React.CSSProperties = {
+  background: 'var(--obsidian-4)',
+  color: 'var(--ivory)',
+  border: '1px solid var(--border-light)',
+  outline: 'none',
+  colorScheme: 'dark',
+}
+
+const labelStyle: React.CSSProperties = {
+  color: 'var(--muted-light)',
+  textTransform: 'uppercase',
+  letterSpacing: '0.05em',
+  fontSize: '0.75rem',
+  fontWeight: 600,
 }
 
 export function IncomeForm({ existing, onSuccess, onCancel }: IncomeFormProps) {
@@ -72,11 +87,13 @@ export function IncomeForm({ existing, onSuccess, onCancel }: IncomeFormProps) {
   return (
     <form onSubmit={handleSubmit} noValidate className="space-y-4">
       {rootError && (
-        <p role="alert" className="text-sm text-red-600">{rootError}</p>
+        <p role="alert" className="text-sm" style={{ color: 'var(--danger)' }}>
+          {rootError}
+        </p>
       )}
 
       <div>
-        <label htmlFor="income-amount" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="income-amount" className="block mb-1" style={labelStyle}>
           Amount
         </label>
         <input
@@ -87,18 +104,21 @@ export function IncomeForm({ existing, onSuccess, onCancel }: IncomeFormProps) {
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
           disabled={isPending}
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:opacity-50"
+          className="block w-full rounded-lg px-3 py-2.5 text-sm transition-colors disabled:opacity-50"
+          style={inputStyle}
+          onFocus={e => (e.currentTarget.style.borderColor = 'var(--gold)')}
+          onBlur={e => (e.currentTarget.style.borderColor = 'var(--border-light)')}
           aria-describedby={fieldErrors.amount ? 'income-amount-error' : undefined}
         />
         {fieldErrors.amount && (
-          <p id="income-amount-error" role="alert" className="mt-1 text-xs text-red-600">
+          <p id="income-amount-error" role="alert" className="mt-1 text-xs" style={{ color: 'var(--danger)' }}>
             {fieldErrors.amount[0]}
           </p>
         )}
       </div>
 
       <div>
-        <label htmlFor="income-source" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="income-source" className="block mb-1" style={labelStyle}>
           Source
         </label>
         <input
@@ -108,18 +128,21 @@ export function IncomeForm({ existing, onSuccess, onCancel }: IncomeFormProps) {
           onChange={(e) => setSource(e.target.value)}
           disabled={isPending}
           placeholder="e.g. Salary, Freelance"
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:opacity-50"
+          className="block w-full rounded-lg px-3 py-2.5 text-sm transition-colors disabled:opacity-50"
+          style={{ ...inputStyle, color: source ? 'var(--ivory)' : undefined }}
+          onFocus={e => (e.currentTarget.style.borderColor = 'var(--gold)')}
+          onBlur={e => (e.currentTarget.style.borderColor = 'var(--border-light)')}
           aria-describedby={fieldErrors.source ? 'income-source-error' : undefined}
         />
         {fieldErrors.source && (
-          <p id="income-source-error" role="alert" className="mt-1 text-xs text-red-600">
+          <p id="income-source-error" role="alert" className="mt-1 text-xs" style={{ color: 'var(--danger)' }}>
             {fieldErrors.source[0]}
           </p>
         )}
       </div>
 
       <div>
-        <label htmlFor="income-date" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="income-date" className="block mb-1" style={labelStyle}>
           Date
         </label>
         <input
@@ -128,23 +151,31 @@ export function IncomeForm({ existing, onSuccess, onCancel }: IncomeFormProps) {
           value={date}
           onChange={(e) => setDate(e.target.value)}
           disabled={isPending}
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:opacity-50"
+          className="block w-full rounded-lg px-3 py-2.5 text-sm transition-colors disabled:opacity-50"
+          style={inputStyle}
+          onFocus={e => (e.currentTarget.style.borderColor = 'var(--gold)')}
+          onBlur={e => (e.currentTarget.style.borderColor = 'var(--border-light)')}
           aria-describedby={fieldErrors.date ? 'income-date-error' : undefined}
         />
         {fieldErrors.date && (
-          <p id="income-date-error" role="alert" className="mt-1 text-xs text-red-600">
+          <p id="income-date-error" role="alert" className="mt-1 text-xs" style={{ color: 'var(--danger)' }}>
             {fieldErrors.date[0]}
           </p>
         )}
       </div>
 
-      <div className="flex gap-2 justify-end">
+      <div className="flex gap-2 justify-end pt-1">
         {onCancel && (
           <button
             type="button"
             onClick={onCancel}
             disabled={isPending}
-            className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+            className="rounded-lg px-4 py-2.5 text-sm font-medium transition-colors disabled:opacity-50"
+            style={{
+              background: 'transparent',
+              color: 'var(--muted-light)',
+              border: '1px solid var(--border-light)',
+            }}
           >
             Cancel
           </button>
@@ -152,7 +183,8 @@ export function IncomeForm({ existing, onSuccess, onCancel }: IncomeFormProps) {
         <button
           type="submit"
           disabled={isPending}
-          className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+          className="rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors disabled:opacity-50"
+          style={{ background: 'var(--gold)', color: 'var(--obsidian)' }}
         >
           {isPending ? 'Saving…' : existing ? 'Update' : 'Add Income'}
         </button>

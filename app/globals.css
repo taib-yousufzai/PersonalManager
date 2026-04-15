@@ -1,26 +1,101 @@
 @import "tailwindcss";
 
+/* ── Obsidian Ledger Design System ── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Core palette */
+  --obsidian:     #0f0f11;
+  --obsidian-2:   #16161a;
+  --obsidian-3:   #1e1e24;
+  --obsidian-4:   #2a2a33;
+  --gold:         #c9a84c;
+  --gold-light:   #e8c97a;
+  --gold-dim:     #c9a84c26;
+  --ivory:        #f5f0e8;
+  --ivory-dim:    #f5f0e840;
+  --muted:        #6b6b7a;
+  --muted-light:  #9898a8;
+  --danger:       #e05252;
+  --success:      #4caf82;
+  --warning:      #e0a030;
+
+  /* Surfaces */
+  --surface-1:    var(--obsidian);
+  --surface-2:    var(--obsidian-2);
+  --surface-3:    var(--obsidian-3);
+  --surface-4:    var(--obsidian-4);
+
+  /* Text */
+  --text-primary:   var(--ivory);
+  --text-secondary: var(--muted-light);
+  --text-muted:     var(--muted);
+
+  /* Borders */
+  --border:       #2a2a3340;
+  --border-light: #2a2a3380;
+
+  /* Sidebar */
+  --sidebar-w: 220px;
+
+  /* Transitions */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+/* ── Base ── */
+*, *::before, *::after { box-sizing: border-box; }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+html { height: 100%; }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  min-height: 100%;
+  background: var(--obsidian);
+  color: var(--text-primary);
+  font-family: var(--font-body), 'DM Sans', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--obsidian-4); border-radius: 2px; }
+
+/* ── Focus ── */
+:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ── Page transition ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.page-enter {
+  animation: fadeUp 0.25s var(--ease-out) both;
+}
+
+/* ── Gold shimmer on hover ── */
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.gold-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--gold) 0%,
+    var(--gold-light) 40%,
+    var(--gold) 60%,
+    var(--gold-light) 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.gold-shimmer:hover {
+  animation: shimmer 1.5s linear infinite;
 }

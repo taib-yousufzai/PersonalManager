@@ -2,7 +2,6 @@ import { AuthProvider } from '@/contexts/AuthContext'
 import { MonthProvider } from '@/contexts/MonthContext'
 import AppNav from './AppNav'
 import OfflineBanner from './OfflineBanner'
-import SignOutButton from '@/components/ui/SignOutButton'
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -10,27 +9,59 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <MonthProvider>
         <OfflineBanner />
         <div className="flex min-h-screen">
-          {/* Desktop sidebar */}
-          <aside className="hidden md:flex md:w-56 md:flex-col md:fixed md:inset-y-0 bg-white border-r border-gray-200">
-            <div className="flex flex-col flex-1 overflow-y-auto py-4">
-              <div className="px-4 mb-6">
-                <h1 className="text-lg font-semibold text-gray-900">Finance</h1>
-              </div>
+
+          {/* ── Desktop sidebar ── */}
+          <aside
+            className="hidden md:flex md:flex-col md:fixed md:inset-y-0 md:z-20"
+            style={{
+              width: 'var(--sidebar-w)',
+              background: 'var(--obsidian-2)',
+              borderRight: '1px solid var(--border)',
+            }}
+          >
+            {/* Brand */}
+            <div className="px-5 pt-6 pb-4">
+              <span
+                className="text-xs font-semibold tracking-[0.25em] uppercase"
+                style={{ color: 'var(--gold)' }}
+              >
+                Ledger
+              </span>
+            </div>
+
+            {/* Nav */}
+            <div className="flex-1 overflow-y-auto px-3 pb-4">
               <AppNav orientation="sidebar" />
             </div>
-            {/* Sign out at bottom of sidebar */}
-            <div className="px-4 py-4 border-t border-gray-200">
-              <SignOutButton />
+
+            {/* Sign out */}
+            <div className="px-3 pb-5" style={{ borderTop: '1px solid var(--border)' }}>
+              <AppNav orientation="signout" />
             </div>
           </aside>
 
-          {/* Main content */}
-          <main className="flex-1 md:ml-56 pb-16 md:pb-0">
-            {children}
+          {/* ── Main content ── */}
+          <main
+            className="flex-1 pb-20 md:pb-0"
+            style={{ marginLeft: 0 }}
+          >
+            <div
+              className="hidden md:block"
+              style={{ marginLeft: 'var(--sidebar-w)' }}
+            />
+            <div className="md:ml-[220px] page-enter">
+              {children}
+            </div>
           </main>
 
-          {/* Mobile bottom bar */}
-          <nav className="md:hidden fixed bottom-0 inset-x-0 bg-white border-t border-gray-200 z-10">
+          {/* ── Mobile bottom bar ── */}
+          <nav
+            className="md:hidden fixed bottom-0 inset-x-0 z-20"
+            style={{
+              background: 'var(--obsidian-2)',
+              borderTop: '1px solid var(--border)',
+            }}
+          >
             <AppNav orientation="bottom" />
           </nav>
         </div>

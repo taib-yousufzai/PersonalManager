@@ -15,6 +15,24 @@ function categoriesCol(uid: string) {
 
 export async function getCategories(uid: string): Promise<Category[]> {
   const snap = await categoriesCol(uid).get()
+
+  // Auto-seed defaults on first use if collection is empty
+  if (snap.empty) {
+    try {
+      await seedDefaultCategories(uid)
+      const seeded = await categoriesCol(uid).get()
+      return seeded.docs
+        .map((d) => {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { createdAt, updatedAt, ...rest } = d.data()
+          return { id: d.id, ...rest } as Category
+        })
+        .sort((a, b) => a.name.localeCompare(b.name))
+    } catch {
+      return []
+    }
+  }
+
   const docs = snap.docs.map((d) => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { createdAt, updatedAt, ...rest } = d.data()

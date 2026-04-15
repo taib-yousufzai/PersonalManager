@@ -10,6 +10,21 @@ interface CategoryManagerProps {
   categories: Category[]
 }
 
+const inputStyle: React.CSSProperties = {
+  background: 'var(--obsidian-4)',
+  color: 'var(--ivory)',
+  border: '1px solid var(--border-light)',
+  outline: 'none',
+}
+
+const labelStyle: React.CSSProperties = {
+  color: 'var(--muted-light)',
+  textTransform: 'uppercase',
+  letterSpacing: '0.05em',
+  fontSize: '0.75rem',
+  fontWeight: 600,
+}
+
 export function CategoryManager({ categories }: CategoryManagerProps) {
   const [editingId, setEditingId] = useState<string | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
@@ -39,7 +54,6 @@ export function CategoryManager({ categories }: CategoryManagerProps) {
       } else {
         const rootMsg = (result.errors as Record<string, string[]>)._root?.[0]
         if (rootMsg) {
-          // Has associated expenses — show reassignment prompt
           setDeleteError(rootMsg)
         } else {
           setDeleteError('Failed to delete category.')
@@ -54,13 +68,34 @@ export function CategoryManager({ categories }: CategoryManagerProps) {
     <div className="space-y-6">
       {/* Category list */}
       <section>
-        <h2 className="text-base font-medium text-gray-700 mb-3">Your Categories</h2>
+        <h2
+          className="text-xs font-semibold uppercase tracking-wide mb-3"
+          style={{ color: 'var(--muted-light)' }}
+        >
+          Your Categories
+        </h2>
         {categories.length === 0 ? (
-          <p className="text-sm text-gray-500">No categories yet. Create one below.</p>
+          <p className="text-sm" style={{ color: 'var(--muted-light)' }}>
+            No categories yet. Create one below.
+          </p>
         ) : (
-          <ul className="divide-y divide-gray-100 rounded-lg border border-gray-200 bg-white shadow-sm">
-            {categories.map((cat) => (
-              <li key={cat.id} className="px-4 py-3">
+          <ul
+            className="rounded-lg overflow-hidden"
+            style={{
+              background: 'var(--obsidian-3)',
+              border: '1px solid var(--border-light)',
+            }}
+          >
+            {categories.map((cat, idx) => (
+              <li
+                key={cat.id}
+                className="px-4 py-3"
+                style={
+                  idx < categories.length - 1
+                    ? { borderBottom: '1px solid var(--border)' }
+                    : undefined
+                }
+              >
                 {editingId === cat.id ? (
                   <CategoryForm
                     existing={cat}
@@ -74,11 +109,14 @@ export function CategoryManager({ categories }: CategoryManagerProps) {
                     </div>
                     {deleteError ? (
                       <div className="space-y-3">
-                        <p className="text-sm text-red-600">{deleteError}</p>
+                        <p className="text-sm" style={{ color: 'var(--danger)' }}>
+                          {deleteError}
+                        </p>
                         <div>
                           <label
                             htmlFor={`reassign-${cat.id}`}
-                            className="block text-sm font-medium text-gray-700 mb-1"
+                            className="block mb-1"
+                            style={labelStyle}
                           >
                             Reassign expenses to:
                           </label>
@@ -87,7 +125,10 @@ export function CategoryManager({ categories }: CategoryManagerProps) {
                             value={reassignTo}
                             onChange={(e) => setReassignTo(e.target.value)}
                             disabled={isPending}
-                            className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:opacity-50"
+                            className="block w-full rounded-lg px-3 py-2.5 text-sm transition-colors disabled:opacity-50"
+                            style={inputStyle}
+                            onFocus={e => (e.currentTarget.style.borderColor = 'var(--gold)')}
+                            onBlur={e => (e.currentTarget.style.borderColor = 'var(--border-light)')}
                           >
                             <option value="">— select a category —</option>
                             {otherCategories.map((c) => (
@@ -102,7 +143,12 @@ export function CategoryManager({ categories }: CategoryManagerProps) {
                             type="button"
                             onClick={cancelDelete}
                             disabled={isPending}
-                            className="rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                            className="rounded-lg px-3 py-1.5 text-sm font-medium transition-colors disabled:opacity-50"
+                            style={{
+                              background: 'transparent',
+                              color: 'var(--muted-light)',
+                              border: '1px solid var(--border-light)',
+                            }}
                           >
                             Cancel
                           </button>
@@ -110,7 +156,8 @@ export function CategoryManager({ categories }: CategoryManagerProps) {
                             type="button"
                             onClick={() => confirmDelete(cat.id, reassignTo)}
                             disabled={isPending || !reassignTo}
-                            className="rounded-md bg-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
+                            className="rounded-lg px-3 py-1.5 text-sm font-semibold transition-colors disabled:opacity-50"
+                            style={{ background: 'var(--danger)', color: 'var(--ivory)' }}
                           >
                             {isPending ? 'Deleting…' : 'Reassign & Delete'}
                           </button>
@@ -122,7 +169,12 @@ export function CategoryManager({ categories }: CategoryManagerProps) {
                           type="button"
                           onClick={cancelDelete}
                           disabled={isPending}
-                          className="rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                          className="rounded-lg px-3 py-1.5 text-sm font-medium transition-colors disabled:opacity-50"
+                          style={{
+                            background: 'transparent',
+                            color: 'var(--muted-light)',
+                            border: '1px solid var(--border-light)',
+                          }}
                         >
                           Cancel
                         </button>
@@ -130,7 +182,8 @@ export function CategoryManager({ categories }: CategoryManagerProps) {
                           type="button"
                           onClick={() => confirmDelete(cat.id)}
                           disabled={isPending}
-                          className="rounded-md bg-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
+                          className="rounded-lg px-3 py-1.5 text-sm font-semibold transition-colors disabled:opacity-50"
+                          style={{ background: 'var(--danger)', color: 'var(--ivory)' }}
                         >
                           {isPending ? 'Deleting…' : 'Confirm Delete'}
                         </button>
@@ -147,7 +200,14 @@ export function CategoryManager({ categories }: CategoryManagerProps) {
                           setEditingId(cat.id)
                           setDeletingId(null)
                         }}
-                        className="rounded-md border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50"
+                        className="rounded-lg px-3 py-1.5 text-xs font-medium transition-colors"
+                        style={{
+                          background: 'transparent',
+                          color: 'var(--gold)',
+                          border: '1px solid var(--border-light)',
+                        }}
+                        onMouseEnter={e => (e.currentTarget.style.color = 'var(--gold-light)')}
+                        onMouseLeave={e => (e.currentTarget.style.color = 'var(--gold)')}
                       >
                         Edit
                       </button>
@@ -157,7 +217,12 @@ export function CategoryManager({ categories }: CategoryManagerProps) {
                           setEditingId(null)
                           startDelete(cat.id)
                         }}
-                        className="rounded-md border border-red-300 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50"
+                        className="rounded-lg px-3 py-1.5 text-xs font-medium transition-colors"
+                        style={{
+                          background: 'transparent',
+                          color: 'var(--danger)',
+                          border: '1px solid rgba(224,82,82,0.35)',
+                        }}
                       >
                         Delete
                       </button>
@@ -171,8 +236,19 @@ export function CategoryManager({ categories }: CategoryManagerProps) {
       </section>
 
       {/* Create new category */}
-      <section className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
-        <h2 className="text-base font-medium text-gray-700 mb-4">Add Category</h2>
+      <section
+        className="rounded-lg p-4"
+        style={{
+          background: 'var(--obsidian-3)',
+          border: '1px solid var(--border-light)',
+        }}
+      >
+        <h2
+          className="text-xs font-semibold uppercase tracking-wide mb-4"
+          style={{ color: 'var(--muted-light)' }}
+        >
+          Add Category
+        </h2>
         <CategoryForm />
       </section>
     </div>

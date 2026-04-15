@@ -19,15 +19,24 @@ function formatCurrency(amount: number): string {
 export default function BudgetList({ budgets, utilization, categories, monthYear }: BudgetListProps) {
   const [editingBudgetId, setEditingBudgetId] = useState<string | null>(null)
 
-  // Build a map from categoryId → utilization for quick lookup
   const utilizationMap = new Map(utilization.map((u) => [u.categoryId, u]))
   const categoryMap = new Map(categories.map((c) => [c.id, c]))
 
   if (budgets.length === 0) {
     return (
-      <div className="rounded-lg border border-dashed border-gray-300 bg-white p-8 text-center">
-        <p className="text-sm text-gray-500">No budgets set for this month.</p>
-        <p className="mt-1 text-xs text-gray-400">Use the form below to set your first budget.</p>
+      <div
+        className="rounded-lg p-8 text-center"
+        style={{
+          background: 'var(--obsidian-3)',
+          border: '1px dashed var(--border-light)',
+        }}
+      >
+        <p className="text-sm" style={{ color: 'var(--muted-light)' }}>
+          No budgets set for this month.
+        </p>
+        <p className="mt-1 text-xs" style={{ color: 'var(--muted)' }}>
+          Use the form below to set your first budget.
+        </p>
       </div>
     )
   }
@@ -43,10 +52,22 @@ export default function BudgetList({ budgets, utilization, categories, monthYear
         const isEditing = editingBudgetId === budget.id
 
         return (
-          <li key={budget.id} className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+          <li
+            key={budget.id}
+            className="rounded-lg p-4"
+            style={{
+              background: 'var(--obsidian-3)',
+              border: '1px solid var(--border-light)',
+            }}
+          >
             {isEditing ? (
               <>
-                <h3 className="text-sm font-medium text-gray-700 mb-3">Edit Budget — {categoryName}</h3>
+                <h3
+                  className="text-xs font-semibold uppercase tracking-wide mb-3"
+                  style={{ color: 'var(--muted-light)' }}
+                >
+                  Edit Budget — {categoryName}
+                </h3>
                 <BudgetForm
                   categories={categories}
                   existing={budget}
@@ -57,17 +78,25 @@ export default function BudgetList({ budgets, utilization, categories, monthYear
             ) : (
               <>
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-gray-800">{categoryName}</span>
+                  <span className="text-sm font-medium" style={{ color: 'var(--ivory)' }}>
+                    {categoryName}
+                  </span>
                   <button
                     onClick={() => setEditingBudgetId(budget.id)}
                     aria-label={`Edit budget for ${categoryName}`}
-                    className="text-xs text-blue-600 hover:text-blue-800"
+                    className="text-xs transition-colors"
+                    style={{ color: 'var(--gold)' }}
+                    onMouseEnter={e => (e.currentTarget.style.color = 'var(--gold-light)')}
+                    onMouseLeave={e => (e.currentTarget.style.color = 'var(--gold)')}
                   >
                     Edit
                   </button>
                 </div>
                 <BudgetProgressBar spent={spent} budgeted={budget.limit} />
-                <p className={`mt-1.5 text-xs ${remaining < 0 ? 'text-red-600' : 'text-gray-500'}`}>
+                <p
+                  className="mt-1.5 text-xs"
+                  style={{ color: remaining < 0 ? 'var(--danger)' : 'var(--muted-light)' }}
+                >
                   {remaining < 0
                     ? `${formatCurrency(Math.abs(remaining))} over budget`
                     : `${formatCurrency(remaining)} remaining`}

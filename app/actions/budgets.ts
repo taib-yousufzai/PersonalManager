@@ -1,6 +1,6 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, revalidateTag } from 'next/cache'
 import { verifySession } from '@/lib/firebase/admin'
 import { BudgetSchema } from '@/lib/validation/schemas'
 import { upsertBudget as dbUpsertBudget, getBudgetsForMonth } from '@/lib/db/budgets'
@@ -35,6 +35,7 @@ export async function upsertBudget(data: unknown): Promise<ActionResult> {
   const report = buildMonthlyReport(incomes, expenses, categories, budgets, savingsGoal, monthYear)
   await saveMonthlyReport(uid, report)
 
+  revalidateTag(`user-${uid}`)
   revalidatePath('/')
   revalidatePath('/budgets')
   revalidatePath('/reports')

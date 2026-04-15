@@ -16,6 +16,22 @@ interface SavingsGoalFormProps {
   onCancel?: () => void
 }
 
+const inputStyle: React.CSSProperties = {
+  background: 'var(--obsidian-4)',
+  color: 'var(--ivory)',
+  border: '1px solid var(--border-light)',
+  outline: 'none',
+  colorScheme: 'dark',
+}
+
+const labelStyle: React.CSSProperties = {
+  color: 'var(--muted-light)',
+  textTransform: 'uppercase',
+  letterSpacing: '0.05em',
+  fontSize: '0.75rem',
+  fontWeight: 600,
+}
+
 export function SavingsGoalForm({ existing, onSuccess, onCancel }: SavingsGoalFormProps) {
   const { selectedMonth } = useMonth()
   const [isPending, startTransition] = useTransition()
@@ -33,10 +49,7 @@ export function SavingsGoalForm({ existing, onSuccess, onCancel }: SavingsGoalFo
     })
     if (!result.success) {
       const flat = result.error.flatten()
-      setFieldErrors({
-        ...(flat.fieldErrors as FieldErrors),
-        // surface refine errors (attached to 'value' path by schema)
-      })
+      setFieldErrors({ ...(flat.fieldErrors as FieldErrors) })
       return null
     }
     setFieldErrors({})
@@ -64,25 +77,37 @@ export function SavingsGoalForm({ existing, onSuccess, onCancel }: SavingsGoalFo
     })
   }
 
+  const activeTabStyle: React.CSSProperties = {
+    background: 'var(--gold)',
+    color: 'var(--obsidian)',
+    fontWeight: 600,
+  }
+  const inactiveTabStyle: React.CSSProperties = {
+    background: 'transparent',
+    color: 'var(--muted-light)',
+  }
+
   return (
     <form onSubmit={handleSubmit} noValidate className="space-y-4">
       {rootError && (
-        <p role="alert" className="text-sm text-red-600">{rootError}</p>
+        <p role="alert" className="text-sm" style={{ color: 'var(--danger)' }}>
+          {rootError}
+        </p>
       )}
 
       {/* Goal type toggle */}
       <div>
-        <span className="block text-sm font-medium text-gray-700 mb-1">Goal type</span>
-        <div className="flex rounded-md border border-gray-300 overflow-hidden w-fit">
+        <span className="block mb-1" style={labelStyle}>Goal type</span>
+        <div
+          className="flex overflow-hidden w-fit rounded-lg"
+          style={{ border: '1px solid var(--border-light)' }}
+        >
           <button
             type="button"
             onClick={() => { setType('fixed'); setValue('') }}
             disabled={isPending}
-            className={`px-4 py-2 text-sm font-medium transition-colors ${
-              type === 'fixed'
-                ? 'bg-blue-600 text-white'
-                : 'bg-white text-gray-700 hover:bg-gray-50'
-            } disabled:opacity-50`}
+            className="px-4 py-2 text-sm transition-colors disabled:opacity-50"
+            style={type === 'fixed' ? activeTabStyle : inactiveTabStyle}
           >
             Fixed amount
           </button>
@@ -90,11 +115,11 @@ export function SavingsGoalForm({ existing, onSuccess, onCancel }: SavingsGoalFo
             type="button"
             onClick={() => { setType('percentage'); setValue('') }}
             disabled={isPending}
-            className={`px-4 py-2 text-sm font-medium transition-colors border-l border-gray-300 ${
-              type === 'percentage'
-                ? 'bg-blue-600 text-white'
-                : 'bg-white text-gray-700 hover:bg-gray-50'
-            } disabled:opacity-50`}
+            className="px-4 py-2 text-sm transition-colors disabled:opacity-50"
+            style={{
+              ...(type === 'percentage' ? activeTabStyle : inactiveTabStyle),
+              borderLeft: '1px solid var(--border-light)',
+            }}
           >
             % of income
           </button>
@@ -102,12 +127,15 @@ export function SavingsGoalForm({ existing, onSuccess, onCancel }: SavingsGoalFo
       </div>
 
       <div>
-        <label htmlFor="savings-value" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="savings-value" className="block mb-1" style={labelStyle}>
           {type === 'fixed' ? 'Amount' : 'Percentage (1–100)'}
         </label>
-        <div className="relative mt-1">
+        <div className="relative">
           {type === 'fixed' && (
-            <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-gray-500 text-sm">
+            <span
+              className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-sm"
+              style={{ color: 'var(--muted-light)' }}
+            >
               $
             </span>
           )}
@@ -120,31 +148,42 @@ export function SavingsGoalForm({ existing, onSuccess, onCancel }: SavingsGoalFo
             value={value}
             onChange={(e) => setValue(e.target.value)}
             disabled={isPending}
-            className={`block w-full rounded-md border border-gray-300 py-2 pr-3 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:opacity-50 ${
+            className={`block w-full rounded-lg py-2.5 pr-3 text-sm transition-colors disabled:opacity-50 ${
               type === 'fixed' ? 'pl-7' : 'pl-3'
             }`}
+            style={inputStyle}
+            onFocus={e => (e.currentTarget.style.borderColor = 'var(--gold)')}
+            onBlur={e => (e.currentTarget.style.borderColor = 'var(--border-light)')}
             aria-describedby={fieldErrors.value ? 'savings-value-error' : undefined}
           />
           {type === 'percentage' && (
-            <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-gray-500 text-sm">
+            <span
+              className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm"
+              style={{ color: 'var(--muted-light)' }}
+            >
               %
             </span>
           )}
         </div>
         {fieldErrors.value && (
-          <p id="savings-value-error" role="alert" className="mt-1 text-xs text-red-600">
+          <p id="savings-value-error" role="alert" className="mt-1 text-xs" style={{ color: 'var(--danger)' }}>
             {fieldErrors.value[0]}
           </p>
         )}
       </div>
 
-      <div className="flex gap-2 justify-end">
+      <div className="flex gap-2 justify-end pt-1">
         {onCancel && (
           <button
             type="button"
             onClick={onCancel}
             disabled={isPending}
-            className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+            className="rounded-lg px-4 py-2.5 text-sm font-medium transition-colors disabled:opacity-50"
+            style={{
+              background: 'transparent',
+              color: 'var(--muted-light)',
+              border: '1px solid var(--border-light)',
+            }}
           >
             Cancel
           </button>
@@ -152,7 +191,8 @@ export function SavingsGoalForm({ existing, onSuccess, onCancel }: SavingsGoalFo
         <button
           type="submit"
           disabled={isPending}
-          className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+          className="rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors disabled:opacity-50"
+          style={{ background: 'var(--gold)', color: 'var(--obsidian)' }}
         >
           {isPending ? 'Saving…' : existing ? 'Update Goal' : 'Set Goal'}
         </button>

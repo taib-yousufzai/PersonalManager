@@ -11,21 +11,22 @@ export default function OfflineBanner() {
     <div
       role="status"
       aria-live="polite"
-      className={`fixed top-0 inset-x-0 z-50 flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white ${
-        isOnline ? 'bg-yellow-500' : 'bg-gray-700'
-      }`}
+      className="fixed top-0 inset-x-0 z-50 flex items-center justify-center gap-2 px-4 py-2 text-xs font-medium"
+      style={{
+        background: isOnline ? 'var(--warning)' : 'var(--obsidian-4)',
+        color: isOnline ? 'var(--obsidian)' : 'var(--muted-light)',
+        borderBottom: '1px solid var(--border)',
+      }}
     >
       {!isOnline ? (
         <>
-          <span aria-hidden="true">⚡</span>
-          <span>You&apos;re offline. Changes will sync when you reconnect.</span>
+          <span className="w-1.5 h-1.5 rounded-full bg-current opacity-60" />
+          Offline — changes will sync when you reconnect
         </>
       ) : pendingCount > 0 ? (
         <>
-          <span aria-hidden="true" className="animate-spin inline-block">↻</span>
-          <span>
-            Syncing {pendingCount} pending {pendingCount === 1 ? 'entry' : 'entries'}…
-          </span>
+          <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" />
+          Syncing {pendingCount} pending {pendingCount === 1 ? 'entry' : 'entries'}…
         </>
       ) : null}
     </div>

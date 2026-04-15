@@ -32,10 +32,14 @@ export async function demoSignIn(): Promise<void> {
     path: '/',
   })
 
-  // Seed default categories for the demo user if not already done, and clean up any duplicates
-  const { seedDefaultCategories, deduplicateCategories } = await import('@/lib/db/categories')
-  await seedDefaultCategories('demo-user')
-  await deduplicateCategories('demo-user')
+  // Best-effort: seed default categories. If Firebase isn't configured yet, skip silently.
+  try {
+    const { seedDefaultCategories, deduplicateCategories } = await import('@/lib/db/categories')
+    await seedDefaultCategories('demo-user')
+    await deduplicateCategories('demo-user')
+  } catch {
+    // Seeding will be retried on first page load via getCategories
+  }
 
   redirect('/')
 }

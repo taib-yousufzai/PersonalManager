@@ -12,33 +12,36 @@ export default function BudgetProgressBar({ spent, budgeted, label }: BudgetProg
 
   const barColor =
     pct > 100
-      ? 'bg-red-500'
+      ? 'var(--danger)'
       : pct >= 80
-        ? 'bg-amber-400'
-        : 'bg-green-500'
+        ? 'var(--warning)'
+        : 'var(--success)'
 
   const textColor =
     pct > 100
-      ? 'text-red-600'
+      ? 'var(--danger)'
       : pct >= 80
-        ? 'text-amber-600'
-        : 'text-green-600'
+        ? 'var(--warning)'
+        : 'var(--success)'
 
   return (
     <div className="w-full">
       {label && (
         <div className="mb-1 flex justify-between text-sm">
-          <span className="text-gray-700">{label}</span>
-          <span className={textColor}>
+          <span style={{ color: 'var(--ivory)' }}>{label}</span>
+          <span style={{ color: textColor }}>
             {spent.toLocaleString('en-US', { style: 'currency', currency: 'USD' })} /{' '}
             {budgeted.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
           </span>
         </div>
       )}
-      <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200">
+      <div
+        className="h-2 w-full overflow-hidden rounded-full"
+        style={{ background: 'var(--obsidian-4)' }}
+      >
         <div
-          className={`h-full rounded-full transition-all duration-500 ${barColor}`}
-          style={{ width: `${clamped}%` }}
+          className="h-full rounded-full transition-all duration-500"
+          style={{ width: `${clamped}%`, background: barColor }}
         />
       </div>
     </div>

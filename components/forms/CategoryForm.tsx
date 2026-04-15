@@ -10,10 +10,25 @@ type CategoryFormData = z.infer<typeof CategorySchema>
 type FieldErrors = Partial<Record<keyof CategoryFormData, string[]>>
 
 interface CategoryFormProps {
-  /** Provide to switch form into rename mode */
   existing?: Category
   onSuccess?: () => void
   onCancel?: () => void
+}
+
+const inputStyle: React.CSSProperties = {
+  background: 'var(--obsidian-4)',
+  color: 'var(--ivory)',
+  border: '1px solid var(--border-light)',
+  outline: 'none',
+  colorScheme: 'dark',
+}
+
+const labelStyle: React.CSSProperties = {
+  color: 'var(--muted-light)',
+  textTransform: 'uppercase',
+  letterSpacing: '0.05em',
+  fontSize: '0.75rem',
+  fontWeight: 600,
 }
 
 export function CategoryForm({ existing, onSuccess, onCancel }: CategoryFormProps) {
@@ -62,11 +77,13 @@ export function CategoryForm({ existing, onSuccess, onCancel }: CategoryFormProp
   return (
     <form onSubmit={handleSubmit} noValidate className="space-y-4">
       {rootError && (
-        <p role="alert" className="text-sm text-red-600">{rootError}</p>
+        <p role="alert" className="text-sm" style={{ color: 'var(--danger)' }}>
+          {rootError}
+        </p>
       )}
 
       <div>
-        <label htmlFor="category-name" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="category-name" className="block mb-1" style={labelStyle}>
           Name
         </label>
         <input
@@ -77,20 +94,23 @@ export function CategoryForm({ existing, onSuccess, onCancel }: CategoryFormProp
           disabled={isPending}
           maxLength={50}
           placeholder="e.g. Groceries"
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:opacity-50"
+          className="block w-full rounded-lg px-3 py-2.5 text-sm transition-colors disabled:opacity-50"
+          style={inputStyle}
+          onFocus={e => (e.currentTarget.style.borderColor = 'var(--gold)')}
+          onBlur={e => (e.currentTarget.style.borderColor = 'var(--border-light)')}
           aria-describedby={fieldErrors.name ? 'category-name-error' : undefined}
         />
         {fieldErrors.name && (
-          <p id="category-name-error" role="alert" className="mt-1 text-xs text-red-600">
+          <p id="category-name-error" role="alert" className="mt-1 text-xs" style={{ color: 'var(--danger)' }}>
             {fieldErrors.name[0]}
           </p>
         )}
       </div>
 
-      {/* Type selector — hidden in rename mode since type can't change */}
+      {/* Type selector — hidden in rename mode */}
       {!isRename && (
         <div>
-          <span className="block text-sm font-medium text-gray-700 mb-1">Type</span>
+          <span className="block mb-2" style={labelStyle}>Type</span>
           <div className="flex gap-4">
             <label className="flex items-center gap-2 cursor-pointer">
               <input
@@ -100,9 +120,9 @@ export function CategoryForm({ existing, onSuccess, onCancel }: CategoryFormProp
                 checked={type === 'essential'}
                 onChange={() => setType('essential')}
                 disabled={isPending}
-                className="accent-blue-600"
+                style={{ accentColor: 'var(--gold)' }}
               />
-              <span className="text-sm text-gray-700">Essential</span>
+              <span className="text-sm" style={{ color: 'var(--ivory)' }}>Essential</span>
             </label>
             <label className="flex items-center gap-2 cursor-pointer">
               <input
@@ -112,26 +132,31 @@ export function CategoryForm({ existing, onSuccess, onCancel }: CategoryFormProp
                 checked={type === 'discretionary'}
                 onChange={() => setType('discretionary')}
                 disabled={isPending}
-                className="accent-blue-600"
+                style={{ accentColor: 'var(--gold)' }}
               />
-              <span className="text-sm text-gray-700">Discretionary</span>
+              <span className="text-sm" style={{ color: 'var(--ivory)' }}>Discretionary</span>
             </label>
           </div>
           {fieldErrors.type && (
-            <p role="alert" className="mt-1 text-xs text-red-600">
+            <p role="alert" className="mt-1 text-xs" style={{ color: 'var(--danger)' }}>
               {fieldErrors.type[0]}
             </p>
           )}
         </div>
       )}
 
-      <div className="flex gap-2 justify-end">
+      <div className="flex gap-2 justify-end pt-1">
         {onCancel && (
           <button
             type="button"
             onClick={onCancel}
             disabled={isPending}
-            className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+            className="rounded-lg px-4 py-2.5 text-sm font-medium transition-colors disabled:opacity-50"
+            style={{
+              background: 'transparent',
+              color: 'var(--muted-light)',
+              border: '1px solid var(--border-light)',
+            }}
           >
             Cancel
           </button>
@@ -139,7 +164,8 @@ export function CategoryForm({ existing, onSuccess, onCancel }: CategoryFormProp
         <button
           type="submit"
           disabled={isPending}
-          className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+          className="rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors disabled:opacity-50"
+          style={{ background: 'var(--gold)', color: 'var(--obsidian)' }}
         >
           {isPending ? 'Saving…' : isRename ? 'Rename' : 'Create Category'}
         </button>

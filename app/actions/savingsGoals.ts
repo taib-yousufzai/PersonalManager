@@ -1,6 +1,6 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, revalidateTag } from 'next/cache'
 import { verifySession } from '@/lib/firebase/admin'
 import { SavingsGoalSchema } from '@/lib/validation/schemas'
 import { upsertSavingsGoal as dbUpsertSavingsGoal, getSavingsGoalForMonth } from '@/lib/db/savingsGoals'
@@ -35,6 +35,7 @@ export async function upsertSavingsGoal(data: unknown): Promise<ActionResult> {
   const report = buildMonthlyReport(incomes, expenses, categories, budgets, savingsGoal, monthYear)
   await saveMonthlyReport(uid, report)
 
+  revalidateTag(`user-${uid}`)
   revalidatePath('/')
   revalidatePath('/budgets')
   revalidatePath('/reports')
