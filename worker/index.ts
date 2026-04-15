@@ -2,7 +2,7 @@
 // Custom Service Worker entry for @ducanh2912/next-pwa
 // Handles background sync of offline mutations queued in IndexedDB
 
-declare const self: ServiceWorkerGlobalScope
+// declare const self: ServiceWorkerGlobalScope
 
 const DB_NAME = 'offline-queue'
 const STORE_NAME = 'mutations'

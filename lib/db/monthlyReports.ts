@@ -10,7 +10,7 @@ function reportsCol(uid: string) {
 function toPlainReport(id: string, data: FirebaseFirestore.DocumentData): MonthlyReport {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { generatedAt, ...rest } = data
-  return { monthYear: id, ...rest, generatedAt: null as never } as MonthlyReport
+  return { monthYear: id, ...rest} as MonthlyReport
 }
 
 /**
