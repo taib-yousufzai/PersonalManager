@@ -1,0 +1,28 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "income",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "monthYear", "order": "ASCENDING" },
+        { "fieldPath": "date", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "expenses",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "monthYear", "order": "ASCENDING" },
+        { "fieldPath": "date", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "monthlyReports",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "monthYear", "order": "DESCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}
