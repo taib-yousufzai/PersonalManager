@@ -2,12 +2,14 @@ import { AuthProvider } from '@/contexts/AuthContext'
 import { MonthProvider } from '@/contexts/MonthContext'
 import AppNav from './AppNav'
 import OfflineBanner from './OfflineBanner'
+import InstallPrompt from '@/components/ui/InstallPrompt'
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <AuthProvider>
       <MonthProvider>
         <OfflineBanner />
+        <InstallPrompt />
         <div className="flex min-h-screen">
 
           {/* ── Desktop sidebar ── */}
