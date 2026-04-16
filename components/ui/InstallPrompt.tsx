@@ -53,15 +53,15 @@ export default function InstallPrompt() {
     <div
       role="dialog"
       aria-label="Install app"
-      className="fixed bottom-24 md:bottom-6 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-sm"
+      className="fixed bottom-24 md:bottom-6 inset-x-4 md:inset-x-auto md:left-1/2 md:-translate-x-1/2 z-50 md:w-96"
       style={{
         animation: 'slideUp 0.3s cubic-bezier(0.16,1,0.3,1) both',
       }}
     >
       <style>{`
         @keyframes slideUp {
-          from { opacity: 0; transform: translateX(-50%) translateY(16px); }
-          to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+          from { opacity: 0; transform: translateY(16px); }
+          to   { opacity: 1; transform: translateY(0); }
         }
       `}</style>
 
