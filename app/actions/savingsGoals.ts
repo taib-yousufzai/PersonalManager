@@ -35,7 +35,7 @@ export async function upsertSavingsGoal(data: unknown): Promise<ActionResult> {
   const report = buildMonthlyReport(incomes, expenses, categories, budgets, savingsGoal, monthYear)
   await saveMonthlyReport(uid, report)
 
-  revalidateTag(`user-${uid}`)
+  revalidateTag(`user-${uid}`, 'max')
   revalidatePath('/')
   revalidatePath('/budgets')
   revalidatePath('/reports')

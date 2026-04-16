@@ -15,7 +15,7 @@ import { CategorySchema } from '@/lib/validation/schemas'
 import type { ActionResult } from '@/lib/types'
 
 function bust(uid: string) {
-  revalidateTag(`user-${uid}`)
+  revalidateTag(`user-${uid}`, 'max')
   revalidatePath('/')
   revalidatePath('/expenses')
   revalidatePath('/budgets')

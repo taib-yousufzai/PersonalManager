@@ -13,7 +13,7 @@ import { buildMonthlyReport } from '@/lib/domain/calculations'
 import type { ActionResult } from '@/lib/types'
 
 function bust(uid: string) {
-  revalidateTag(`user-${uid}`)
+  revalidateTag(`user-${uid}`, 'max')
   revalidatePath('/')
   revalidatePath('/expenses')
   revalidatePath('/reports')
