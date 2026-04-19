@@ -10,6 +10,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts'
+import { formatCurrencyInline } from '@/lib/currency'
 import type { MonthlyReport } from '@/lib/types'
 
 interface RechartsChartProps {
@@ -30,16 +31,14 @@ export default function RechartsChart({ reports }: RechartsChartProps) {
         <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
         <XAxis dataKey="monthYear" tick={{ fontSize: 12 }} />
         <YAxis
-          tickFormatter={(v: number) =>
-            v.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 })
-          }
+          tickFormatter={(v: number) => formatCurrencyInline(v, 0)}
           tick={{ fontSize: 12 }}
           width={80}
         />
         <Tooltip
           formatter={(value) =>
             typeof value === 'number'
-              ? value.toLocaleString('en-US', { style: 'currency', currency: 'USD' })
+              ? formatCurrencyInline(value)
               : String(value)
           }
         />

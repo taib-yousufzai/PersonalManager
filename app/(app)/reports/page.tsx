@@ -6,11 +6,8 @@ import { getCachedRecentReports } from '@/lib/cache'
 import { getMonthlyReport } from '@/lib/db/monthlyReports'
 import { getCachedCategories } from '@/lib/cache'
 import TrendChart from '@/components/charts/TrendChart'
+import CurrencyDisplay from '@/components/ui/CurrencyDisplay'
 import type { MonthlyReport, Category } from '@/lib/types'
-
-function fmt(amount: number): string {
-  return amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' })
-}
 
 function statusColor(status: 'ok' | 'warning' | 'over'): string {
   if (status === 'over') return 'var(--danger)'
@@ -45,7 +42,7 @@ function ReportDetail({
             Total Income
           </p>
           <p className="text-lg font-semibold" style={{ color: 'var(--success)' }}>
-            {fmt(report.totalIncome)}
+            <CurrencyDisplay amount={report.totalIncome} />
           </p>
         </div>
         <div>
@@ -53,7 +50,7 @@ function ReportDetail({
             Total Expenses
           </p>
           <p className="text-lg font-semibold" style={{ color: 'var(--danger)' }}>
-            {fmt(report.totalExpenses)}
+            <CurrencyDisplay amount={report.totalExpenses} />
           </p>
         </div>
         <div>
@@ -61,7 +58,7 @@ function ReportDetail({
             Actual Savings
           </p>
           <p className="text-lg font-semibold" style={{ color: 'var(--gold)' }}>
-            {fmt(report.actualSavings)}
+            <CurrencyDisplay amount={report.actualSavings} />
           </p>
         </div>
         <div>
@@ -69,7 +66,7 @@ function ReportDetail({
             Target Savings
           </p>
           <p className="text-base font-medium" style={{ color: 'var(--ivory)' }}>
-            {fmt(report.targetSavings)}
+            <CurrencyDisplay amount={report.targetSavings} />
           </p>
         </div>
         <div>
@@ -77,7 +74,7 @@ function ReportDetail({
             Savings Margin
           </p>
           <p className="text-base font-medium" style={{ color: 'var(--ivory)' }}>
-            {fmt(report.savingsMargin)}
+            <CurrencyDisplay amount={report.savingsMargin} />
           </p>
         </div>
         <div>
@@ -85,7 +82,7 @@ function ReportDetail({
             Safe to Spend
           </p>
           <p className="text-base font-medium" style={{ color: 'var(--ivory)' }}>
-            {fmt(report.safeToSpend)}
+            <CurrencyDisplay amount={report.safeToSpend} />
           </p>
         </div>
       </div>
@@ -108,7 +105,7 @@ function ReportDetail({
                     {categoryMap[catId] ?? catId}
                   </span>
                   <span className="font-medium" style={{ color: 'var(--ivory)' }}>
-                    {fmt(total)}
+                    <CurrencyDisplay amount={total} inline />
                   </span>
                 </li>
               ))}
@@ -130,8 +127,8 @@ function ReportDetail({
               <li key={u.categoryId}>
                 <div className="flex justify-between text-sm mb-1">
                   <span style={{ color: 'var(--muted-light)' }}>{u.categoryName}</span>
-                  <span className="font-medium" style={{ color: statusColor(u.status) }}>
-                    {fmt(u.spent)} / {fmt(u.limit)} ({u.utilizationPct.toFixed(0)}%)
+                  <span className="font-medium flex gap-1 items-center" style={{ color: statusColor(u.status) }}>
+                    <CurrencyDisplay amount={u.spent} inline /> / <CurrencyDisplay amount={u.limit} inline /> ({u.utilizationPct.toFixed(0)}%)
                   </span>
                 </div>
                 <div
@@ -306,13 +303,13 @@ export default async function ReportsPage({
                         </Link>
                       </td>
                       <td className="px-4 py-3 text-right" style={{ color: 'var(--success)' }}>
-                        {fmt(r.totalIncome)}
+                        <CurrencyDisplay amount={r.totalIncome} inline />
                       </td>
                       <td className="px-4 py-3 text-right" style={{ color: 'var(--danger)' }}>
-                        {fmt(r.totalExpenses)}
+                        <CurrencyDisplay amount={r.totalExpenses} inline />
                       </td>
                       <td className="px-4 py-3 text-right" style={{ color: 'var(--gold)' }}>
-                        {fmt(r.actualSavings)}
+                        <CurrencyDisplay amount={r.actualSavings} inline />
                       </td>
                     </tr>
                   )

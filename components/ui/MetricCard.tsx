@@ -1,3 +1,5 @@
+import CurrencyDisplay from './CurrencyDisplay'
+
 interface MetricCardProps {
   label: string
   value: number
@@ -19,12 +21,12 @@ export default function MetricCard({ label, value }: MetricCardProps) {
       >
         {label}
       </p>
-      <p
+      <div
         className="mt-1 text-2xl font-semibold"
         style={{ color: 'var(--ivory)' }}
       >
-        {value.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
-      </p>
+        <CurrencyDisplay amount={value} />
+      </div>
     </div>
   )
 }

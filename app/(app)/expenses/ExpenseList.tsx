@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react'
 import { deleteExpense } from '@/app/actions/expenses'
 import { ExpenseForm } from '@/components/forms/ExpenseForm'
 import CategoryBadge from '@/components/ui/CategoryBadge'
+import CurrencyDisplay from '@/components/ui/CurrencyDisplay'
 import type { Expense, Category } from '@/lib/types'
 
 interface ExpenseListProps {
@@ -14,9 +15,7 @@ interface ExpenseListProps {
   currentCursor: string | undefined
 }
 
-function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount)
-}
+
 
 function formatDate(dateStr: string): string {
   const [year, month, day] = dateStr.split('-').map(Number)
@@ -196,7 +195,7 @@ export default function ExpenseList({
                 </div>
                 <div className="flex items-center gap-3 shrink-0">
                   <span className="text-sm font-semibold" style={{ color: 'var(--ivory)' }}>
-                    {formatCurrency(expense.amount)}
+                    <CurrencyDisplay amount={expense.amount} inline />
                   </span>
                   <button
                     onClick={() => setEditingExpense(expense)}

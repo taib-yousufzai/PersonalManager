@@ -1,6 +1,7 @@
 import { verifySession } from '@/lib/firebase/admin'
 import { getCachedMonthlyReport, getCachedCategories } from '@/lib/cache'
 import { generateInsights } from '@/lib/domain/insights'
+import { getUSDtoINRRate } from '@/lib/currency'
 import MetricCard from '@/components/ui/MetricCard'
 import BudgetProgressBar from '@/components/ui/BudgetProgressBar'
 import InsightCard from '@/components/ui/InsightCard'
@@ -24,9 +25,10 @@ export default async function DashboardPage() {
   }
 
   const monthYear = getCurrentMonth()
-  const [report, categories] = await Promise.all([
+  const [report, categories, usdToINR] = await Promise.all([
     getCachedMonthlyReport(uid, monthYear),
     getCachedCategories(uid),
+    getUSDtoINRRate(),
   ])
   const insights = report ? generateInsights(report) : []
 
@@ -70,12 +72,12 @@ export default async function DashboardPage() {
           Monthly Summary
         </h2>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-          <MetricCard label="Total Income" value={report?.totalIncome ?? 0} />
-          <MetricCard label="Total Expenses" value={report?.totalExpenses ?? 0} />
-          <MetricCard label="Actual Savings" value={report?.actualSavings ?? 0} />
-          <MetricCard label="Target Savings" value={report?.targetSavings ?? 0} />
-          <MetricCard label="Safe to Spend" value={report?.safeToSpend ?? 0} />
-          <MetricCard label="Savings Margin" value={report?.savingsMargin ?? 0} />
+          <MetricCard label="Total Income" value={report?.totalIncome ?? 0} rate={usdToINR} />
+          <MetricCard label="Total Expenses" value={report?.totalExpenses ?? 0} rate={usdToINR} />
+          <MetricCard label="Actual Savings" value={report?.actualSavings ?? 0} rate={usdToINR} />
+          <MetricCard label="Target Savings" value={report?.targetSavings ?? 0} rate={usdToINR} />
+          <MetricCard label="Safe to Spend" value={report?.safeToSpend ?? 0} rate={usdToINR} />
+          <MetricCard label="Savings Margin" value={report?.savingsMargin ?? 0} rate={usdToINR} />
         </div>
       </section>
 

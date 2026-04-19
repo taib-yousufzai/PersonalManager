@@ -1,4 +1,5 @@
 'use client'
+import CurrencyDisplay from './CurrencyDisplay'
 
 interface BudgetProgressBarProps {
   spent: number
@@ -29,9 +30,8 @@ export default function BudgetProgressBar({ spent, budgeted, label }: BudgetProg
       {label && (
         <div className="mb-1 flex justify-between text-sm">
           <span style={{ color: 'var(--ivory)' }}>{label}</span>
-          <span style={{ color: textColor }}>
-            {spent.toLocaleString('en-US', { style: 'currency', currency: 'USD' })} /{' '}
-            {budgeted.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
+          <span className="flex items-center gap-1" style={{ color: textColor }}>
+            <CurrencyDisplay amount={spent} inline /> / <CurrencyDisplay amount={budgeted} inline />
           </span>
         </div>
       )}

@@ -3,6 +3,8 @@
 import { useState } from 'react'
 import BudgetProgressBar from '@/components/ui/BudgetProgressBar'
 import { BudgetForm } from '@/components/forms/BudgetForm'
+import CurrencyDisplay from '@/components/ui/CurrencyDisplay'
+import { formatCurrencyInline } from '@/lib/currency'
 import type { Budget, BudgetUtilization, Category } from '@/lib/types'
 
 interface BudgetListProps {
@@ -12,9 +14,6 @@ interface BudgetListProps {
   monthYear: string
 }
 
-function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount)
-}
 
 export default function BudgetList({ budgets, utilization, categories, monthYear }: BudgetListProps) {
   const [editingBudgetId, setEditingBudgetId] = useState<string | null>(null)
@@ -98,8 +97,8 @@ export default function BudgetList({ budgets, utilization, categories, monthYear
                   style={{ color: remaining < 0 ? 'var(--danger)' : 'var(--muted-light)' }}
                 >
                   {remaining < 0
-                    ? `${formatCurrency(Math.abs(remaining))} over budget`
-                    : `${formatCurrency(remaining)} remaining`}
+                    ? `${formatCurrencyInline(Math.abs(remaining))} over budget`
+                    : `${formatCurrencyInline(remaining)} remaining`}
                 </p>
               </>
             )}

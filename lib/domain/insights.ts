@@ -1,4 +1,5 @@
 import type { MonthlyReport, Insight } from '../types'
+import { formatCurrencyInline } from '@/lib/currency'
 
 export function generateInsights(report: MonthlyReport): Insight[] {
   const insights: Insight[] = []
@@ -10,7 +11,7 @@ export function generateInsights(report: MonthlyReport): Insight[] {
       insights.push({
         type: 'overspending',
         severity: 'critical',
-        message: `You overspent on ${utilization.categoryName} by $${overage.toFixed(2)}.`,
+        message: `You overspent on ${utilization.categoryName} by ${formatCurrencyInline(overage)}.`,
         categoryId: utilization.categoryId,
       })
     }
@@ -22,7 +23,7 @@ export function generateInsights(report: MonthlyReport): Insight[] {
     insights.push({
       type: 'savings_shortfall',
       severity: 'warning',
-      message: `You are $${shortfall.toFixed(2)} short of your savings target.`,
+      message: `You are ${formatCurrencyInline(shortfall)} short of your savings target.`,
     })
   }
 
@@ -31,7 +32,7 @@ export function generateInsights(report: MonthlyReport): Insight[] {
     insights.push({
       type: 'discretionary_opportunity',
       severity: 'info',
-      message: `You could save up to $${report.potentialSavings.toFixed(2)} by reducing discretionary spending.`,
+      message: `You could save up to ${formatCurrencyInline(report.potentialSavings)} by reducing discretionary spending.`,
     })
   }
 

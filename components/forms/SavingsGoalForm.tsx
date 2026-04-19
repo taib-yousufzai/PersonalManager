@@ -136,7 +136,7 @@ export function SavingsGoalForm({ existing, onSuccess, onCancel }: SavingsGoalFo
               className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-sm"
               style={{ color: 'var(--muted-light)' }}
             >
-              $
+              ₹
             </span>
           )}
           <input
