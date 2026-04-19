@@ -34,12 +34,14 @@ export default async function CalendarPage() {
   ])
 
   return (
-    <FinanceCalendar
-      initialExpenses={expenses}
-      initialPayments={payments}
-      categories={categories}
-      rate={rate}
-      initialMonthYear={monthYear}
-    />
+    <div className="px-4 py-6 md:px-8 max-w-5xl mx-auto">
+      <FinanceCalendar
+        initialExpenses={expenses}
+        initialPayments={payments}
+        categories={categories}
+        rate={rate}
+        initialMonthYear={monthYear}
+      />
+    </div>
   )
 }

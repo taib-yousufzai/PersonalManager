@@ -9,7 +9,9 @@ import { IncomeForm } from '@/components/forms/IncomeForm'
 import { ExpenseForm } from '@/components/forms/ExpenseForm'
 import TodayBanner from '@/components/calendar/TodayBanner'
 import NotificationInit from '@/components/calendar/NotificationInit'
-import { getScheduledPaymentsForDate } from '@/lib/db/scheduledPayments'
+import { getScheduledPaymentsForDate, getScheduledPaymentsByMonth } from '@/lib/db/scheduledPayments'
+import { getAllExpensesForMonth } from '@/lib/db/expenses'
+import FinanceCalendar from '@/components/calendar/FinanceCalendar'
 import { redirect } from 'next/navigation'
 
 function getCurrentMonth(): string {
@@ -33,11 +35,13 @@ export default async function DashboardPage() {
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
   })()
 
-  const [report, categories, usdToINR, todayPayments] = await Promise.all([
+  const [report, categories, usdToINR, todayPayments, monthExpenses, monthPayments] = await Promise.all([
     getCachedMonthlyReport(uid, monthYear),
     getCachedCategories(uid),
     getUSDtoINRRate(),
     getScheduledPaymentsForDate(uid, today),
+    getAllExpensesForMonth(uid, monthYear),
+    getScheduledPaymentsByMonth(uid, monthYear),
   ])
   const insights = report ? generateInsights(report) : []
 
@@ -96,6 +100,17 @@ export default async function DashboardPage() {
           <MetricCard label="Safe to Spend" value={report?.safeToSpend ?? 0} rate={usdToINR} />
           <MetricCard label="Savings Margin" value={report?.savingsMargin ?? 0} rate={usdToINR} />
         </div>
+      </section>
+
+      {/* Embedded Calendar */}
+      <section>
+        <FinanceCalendar
+          initialExpenses={monthExpenses}
+          initialPayments={monthPayments}
+          categories={categories}
+          rate={usdToINR}
+          initialMonthYear={monthYear}
+        />
       </section>
 
       {/* Budget progress bars */}
