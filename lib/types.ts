@@ -80,6 +80,17 @@ export interface Insight {
   categoryId?: string // for overspending insights
 }
 
+export interface ScheduledPayment {
+  id: string
+  title: string        // e.g. "Electricity bill"
+  amount: number       // INR, positive
+  date: string         // YYYY-MM-DD
+  note?: string
+  isPaid: boolean
+  createdAt: Timestamp
+  updatedAt: Timestamp
+}
+
 export type ActionResult =
   | { success: true }
   | { success: false; errors: Record<string, string[]> }

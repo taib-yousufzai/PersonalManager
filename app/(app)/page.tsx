@@ -7,6 +7,9 @@ import BudgetProgressBar from '@/components/ui/BudgetProgressBar'
 import InsightCard from '@/components/ui/InsightCard'
 import { IncomeForm } from '@/components/forms/IncomeForm'
 import { ExpenseForm } from '@/components/forms/ExpenseForm'
+import TodayBanner from '@/components/calendar/TodayBanner'
+import NotificationInit from '@/components/calendar/NotificationInit'
+import { getScheduledPaymentsForDate } from '@/lib/db/scheduledPayments'
 import { redirect } from 'next/navigation'
 
 function getCurrentMonth(): string {
@@ -25,10 +28,16 @@ export default async function DashboardPage() {
   }
 
   const monthYear = getCurrentMonth()
-  const [report, categories, usdToINR] = await Promise.all([
+  const today = (() => {
+    const d = new Date()
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+  })()
+
+  const [report, categories, usdToINR, todayPayments] = await Promise.all([
     getCachedMonthlyReport(uid, monthYear),
     getCachedCategories(uid),
     getUSDtoINRRate(),
+    getScheduledPaymentsForDate(uid, today),
   ])
   const insights = report ? generateInsights(report) : []
 
@@ -44,6 +53,14 @@ export default async function DashboardPage() {
           {monthYear}
         </p>
       </div>
+
+      {/* Due-today notification (browser) */}
+      <NotificationInit payments={todayPayments} />
+
+      {/* Due-today banner */}
+      {todayPayments.some((p) => !p.isPaid) && (
+        <TodayBanner payments={todayPayments} />
+      )}
 
       {/* No-income prompt */}
       {noIncome && (

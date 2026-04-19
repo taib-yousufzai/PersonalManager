@@ -54,5 +54,15 @@ service cloud.firestore {
     match /users/{uid}/monthlyReports/{id} {
       allow read, write: if request.auth != null && request.auth.uid == uid;
     }
+
+    // Scheduled payments: owner-only, amount must be positive.
+    match /users/{uid}/scheduledPayments/{id} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow create, update: if request.auth != null
+        && request.auth.uid == uid
+        && request.resource.data.amount is number
+        && request.resource.data.amount > 0;
+      allow delete: if request.auth != null && request.auth.uid == uid;
+    }
   }
 }
