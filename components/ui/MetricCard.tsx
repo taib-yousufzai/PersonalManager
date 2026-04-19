@@ -3,9 +3,10 @@ import CurrencyDisplay from './CurrencyDisplay'
 interface MetricCardProps {
   label: string
   value: number
+  rate?: number
 }
 
-export default function MetricCard({ label, value }: MetricCardProps) {
+export default function MetricCard({ label, value, rate }: MetricCardProps) {
   return (
     <div
       style={{
@@ -25,7 +26,7 @@ export default function MetricCard({ label, value }: MetricCardProps) {
         className="mt-1 text-2xl font-semibold"
         style={{ color: 'var(--ivory)' }}
       >
-        <CurrencyDisplay amount={value} />
+        <CurrencyDisplay amount={value} rate={rate} />
       </div>
     </div>
   )
