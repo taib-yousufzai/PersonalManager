@@ -13,6 +13,7 @@ type FieldErrors = Partial<Record<keyof ExpenseFormData, string[]>>
 interface ExpenseFormProps {
   categories?: Category[]
   existing?: Expense
+  initialDate?: string
   onSuccess?: () => void
   onCancel?: () => void
 }
@@ -37,13 +38,13 @@ const labelStyle: React.CSSProperties = {
   fontWeight: 600,
 }
 
-export function ExpenseForm({ categories: propCategories, existing, onSuccess, onCancel }: ExpenseFormProps) {
+export function ExpenseForm({ categories: propCategories, existing, initialDate, onSuccess, onCancel }: ExpenseFormProps) {
   const { selectedMonth } = useMonth()
   const [isPending, startTransition] = useTransition()
 
   const [amount, setAmount] = useState(existing ? String(existing.amount) : '')
   const [categoryId, setCategoryId] = useState(existing?.categoryId ?? '')
-  const [date, setDate] = useState(existing?.date ?? today())
+  const [date, setDate] = useState(existing?.date ?? initialDate ?? today())
   const [note, setNote] = useState(existing?.note ?? '')
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({})
   const [rootError, setRootError] = useState<string | null>(null)
@@ -64,12 +65,15 @@ export function ExpenseForm({ categories: propCategories, existing, onSuccess, o
   }, [propCategories, categoryId])
 
   function validate(): ExpenseFormData | null {
+    // Derive monthYear from date: YYYY-MM-DD -> YYYY-MM
+    const derivedMonthYear = date.slice(0, 7)
+
     const result = ExpenseSchema.safeParse({
       amount: parseFloat(amount),
       categoryId,
       date,
       note: note || undefined,
-      monthYear: existing?.monthYear ?? selectedMonth,
+      monthYear: derivedMonthYear,
     })
     if (!result.success) {
       setFieldErrors(result.error.flatten().fieldErrors as FieldErrors)

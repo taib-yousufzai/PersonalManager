@@ -1,12 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import type { Expense, ScheduledPayment, Category } from '@/lib/types'
 import { formatINR } from '@/lib/currency'
 import AddPaymentModal from './AddPaymentModal'
+import AddExpenseModal from './AddExpenseModal'
 
 interface Props {
-  date: string // YYYY-MM-DD
+  date: string
   expenses: Expense[]
   payments: ScheduledPayment[]
   categories: Category[]
@@ -15,250 +16,179 @@ interface Props {
   onPaymentUpdate: (p: ScheduledPayment) => void
   onPaymentDelete: (id: string) => void
   onPaymentAdd: (p: ScheduledPayment) => void
+  onExpenseAdd: () => void
 }
 
 function friendlyDate(iso: string) {
-  const [y, m, d] = iso.split('-').map(Number)
-  return new Date(y, m - 1, d).toLocaleDateString('en-IN', {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  })
+  try {
+    const [y, m, d] = iso.split('-').map(Number)
+    return new Date(y, m - 1, d).toLocaleDateString('en-IN', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    })
+  } catch {
+    return iso
+  }
 }
 
 export default function DayDrawer({
   date,
-  expenses,
-  payments,
-  categories,
+  expenses = [],
+  payments = [],
+  categories = [],
   rate,
   onClose,
   onPaymentUpdate,
   onPaymentDelete,
   onPaymentAdd,
+  onExpenseAdd,
 }: Props) {
-  const [showModal, setShowModal] = useState(false)
+  const [showPaymentModal, setShowPaymentModal] = useState(false)
+  const [showExpenseModal, setShowExpenseModal] = useState(false)
   const [editPayment, setEditPayment] = useState<ScheduledPayment | null>(null)
   const [markingId, setMarkingId] = useState<string | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
 
+  useEffect(() => {
+    document.body.style.overflow = 'hidden'
+    return () => { document.body.style.overflow = 'auto' }
+  }, [])
+
   const catName = (id: string) => categories.find((c) => c.id === id)?.name ?? 'Uncategorised'
-  const totalSpent = expenses.reduce((s, e) => s + e.amount, 0)
-
-  const togglePaid = async (p: ScheduledPayment) => {
-    setMarkingId(p.id)
-    try {
-      const res = await fetch(`/api/scheduled-payments/${p.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ isPaid: !p.isPaid }),
-      })
-      if (res.ok) onPaymentUpdate({ ...p, isPaid: !p.isPaid })
-    } finally {
-      setMarkingId(null)
-    }
-  }
-
-  const deletePayment = async (id: string) => {
-    setDeletingId(id)
-    try {
-      const res = await fetch(`/api/scheduled-payments/${id}`, { method: 'DELETE' })
-      if (res.ok) onPaymentDelete(id)
-    } finally {
-      setDeletingId(null)
-    }
-  }
+  const totalSpent = expenses.reduce((s, e) => s + (e?.amount || 0), 0)
 
   return (
     <>
-      {/* Backdrop */}
       <div
-        className="fixed inset-0 z-40"
-        style={{ background: 'rgba(0,0,0,0.5)' }}
+        className="fixed inset-0 z-[40] bg-black/60 backdrop-blur-[2px]"
         onClick={onClose}
-        aria-hidden="true"
       />
 
-      {/* Drawer */}
       <aside
-        className="fixed right-0 top-0 bottom-0 z-50 flex flex-col overflow-y-auto"
-        style={{
-          width: 'min(380px, 100vw)',
-          background: 'var(--obsidian-2)',
-          borderLeft: '1px solid var(--border-light)',
-        }}
-        role="dialog"
-        aria-label={`Details for ${date}`}
+        className="fixed top-0 bottom-0 right-0 z-[50] flex flex-col w-full sm:w-[400px] shadow-2xl transition-transform"
+        style={{ background: 'var(--obsidian-2)', borderLeft: '1px solid var(--border-light)' }}
       >
-        {/* Drawer header */}
-        <div
-          className="flex items-start justify-between p-5 sticky top-0"
-          style={{ background: 'var(--obsidian-2)', borderBottom: '1px solid var(--border-light)' }}
-        >
+        {/* Header */}
+        <div className="flex items-center justify-between p-6 border-b border-[var(--border-light)]">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: 'var(--muted)' }}>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--gold)] mb-1">
               {friendlyDate(date)}
             </p>
-            {totalSpent > 0 && (
-              <p className="text-sm mt-0.5 font-medium" style={{ color: 'var(--danger)' }}>
-                Total spent: {formatINR(totalSpent)}
-              </p>
-            )}
+            <h2 className="text-sm font-semibold text-[var(--ivory)]">Daily Overview</h2>
           </div>
           <button
             onClick={onClose}
-            className="w-7 h-7 flex items-center justify-center rounded-lg text-lg leading-none"
-            style={{ color: 'var(--muted)', background: 'var(--obsidian-3)' }}
-            aria-label="Close panel"
+            className="w-8 h-8 flex items-center justify-center rounded-full bg-[var(--obsidian-3)] text-[var(--muted-light)] hover:bg-[var(--obsidian-4)]"
           >
             ×
           </button>
         </div>
 
-        <div className="flex-1 p-5 space-y-6">
-          {/* Expenses section */}
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto p-6 space-y-10">
+          {/* Expenses */}
           <section>
-            <h2 className="text-xs font-semibold uppercase tracking-wide mb-3" style={{ color: 'var(--muted)' }}>
-              Expenses ({expenses.length})
-            </h2>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-[10px] font-bold uppercase tracking-widest text-[var(--muted)]">Expenses</h3>
+              <button
+                onClick={() => setShowExpenseModal(true)}
+                className="text-[11px] font-bold px-3 py-1.5 rounded-lg bg-[var(--obsidian-4)] text-[var(--ivory)] border border-[var(--border-light)]"
+              >
+                + Add Expense
+              </button>
+            </div>
+
+            {totalSpent > 0 && (
+              <div className="mb-4 p-4 rounded-xl bg-danger/5 border border-danger/10">
+                <p className="text-[10px] text-[var(--muted-light)] uppercase font-bold">Total Spent</p>
+                <p className="text-xl font-bold text-[var(--danger)]">{formatINR(totalSpent)}</p>
+              </div>
+            )}
+
             {expenses.length === 0 ? (
-              <p className="text-sm" style={{ color: 'var(--muted)' }}>
-                No expenses recorded.
-              </p>
+              <div className="py-10 text-center border-2 border-dashed border-[var(--border-light)] rounded-2xl">
+                <p className="text-xs text-[var(--muted)]">No expenses recorded</p>
+              </div>
             ) : (
-              <ul className="space-y-2">
+              <div className="space-y-3">
                 {expenses.map((e) => (
-                  <li
-                    key={e.id}
-                    className="flex items-center justify-between rounded-lg px-3 py-2.5"
-                    style={{ background: 'var(--obsidian-3)' }}
-                  >
+                  <div key={e.id} className="flex items-center justify-between p-4 rounded-xl bg-[var(--obsidian-3)] border border-white/5">
                     <div>
-                      <p className="text-sm font-medium" style={{ color: 'var(--ivory)' }}>
-                        {catName(e.categoryId)}
-                      </p>
-                      {e.note && (
-                        <p className="text-xs mt-0.5" style={{ color: 'var(--muted-light)' }}>
-                          {e.note}
-                        </p>
-                      )}
+                      <p className="text-sm font-bold text-[var(--ivory)]">{catName(e.categoryId)}</p>
+                      {e.note && <p className="text-xs text-[var(--muted)] mt-0.5">{e.note}</p>}
                     </div>
-                    <span className="text-sm font-semibold" style={{ color: 'var(--danger)' }}>
-                      {formatINR(e.amount)}
-                    </span>
-                  </li>
+                    <p className="text-sm font-bold text-[var(--danger)]">{formatINR(e.amount)}</p>
+                  </div>
                 ))}
-              </ul>
+              </div>
             )}
           </section>
 
-          {/* Scheduled payments section */}
+          {/* Payments */}
           <section>
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="text-xs font-semibold uppercase tracking-wide" style={{ color: 'var(--muted)' }}>
-                Scheduled Payments ({payments.length})
-              </h2>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-[10px] font-bold uppercase tracking-widest text-[var(--muted)]">Scheduled</h3>
               <button
-                onClick={() => { setEditPayment(null); setShowModal(true) }}
-                className="text-xs font-medium px-2.5 py-1 rounded-lg transition-colors"
-                style={{ background: 'var(--gold-dim)', color: 'var(--gold-light)' }}
+                onClick={() => { setEditPayment(null); setShowPaymentModal(true) }}
+                className="text-[11px] font-bold px-3 py-1.5 rounded-lg bg-[var(--gold-dim)] text-[var(--gold-light)] border border-gold/10"
               >
-                + Add
+                + Add Payment
               </button>
             </div>
 
             {payments.length === 0 ? (
-              <p className="text-sm" style={{ color: 'var(--muted)' }}>
-                No payments scheduled.
-              </p>
+              <div className="py-10 text-center border-2 border-dashed border-[var(--border-light)] rounded-2xl">
+                <p className="text-xs text-[var(--muted)]">No payments scheduled</p>
+              </div>
             ) : (
-              <ul className="space-y-2">
+              <div className="space-y-3">
                 {payments.map((p) => (
-                  <li
-                    key={p.id}
-                    className="rounded-lg px-3 py-2.5"
-                    style={{
-                      background: 'var(--obsidian-3)',
-                      border: p.isPaid ? '1px solid rgba(76,175,130,0.2)' : '1px solid rgba(201,168,76,0.15)',
-                    }}
-                  >
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex-1 min-w-0">
-                        <p
-                          className="text-sm font-medium"
-                          style={{
-                            color: p.isPaid ? 'var(--success)' : 'var(--ivory)',
-                            textDecoration: p.isPaid ? 'line-through' : 'none',
-                          }}
-                        >
-                          {p.title}
-                        </p>
-                        {p.note && (
-                          <p className="text-xs mt-0.5 truncate" style={{ color: 'var(--muted-light)' }}>
-                            {p.note}
-                          </p>
-                        )}
-                        <p className="text-xs mt-1 font-semibold" style={{ color: p.isPaid ? 'var(--success)' : 'var(--gold)' }}>
-                          {formatINR(p.amount)}
-                        </p>
-                      </div>
-
-                      {/* Actions */}
-                      <div className="flex items-center gap-1.5 shrink-0">
-                        <button
-                          onClick={() => togglePaid(p)}
-                          disabled={markingId === p.id}
-                          className="text-[10px] font-medium px-2 py-1 rounded transition-colors"
-                          style={{
-                            background: p.isPaid ? 'rgba(76,175,130,0.15)' : 'rgba(76,175,130,0.1)',
-                            color: 'var(--success)',
-                          }}
-                          aria-label={p.isPaid ? 'Mark unpaid' : 'Mark paid'}
-                        >
-                          {markingId === p.id ? '…' : p.isPaid ? 'Undo' : '✓ Paid'}
-                        </button>
-                        <button
-                          onClick={() => { setEditPayment(p); setShowModal(true) }}
-                          className="text-[10px] font-medium px-2 py-1 rounded transition-colors"
-                          style={{ background: 'var(--obsidian-4)', color: 'var(--muted-light)' }}
-                          aria-label="Edit payment"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => deletePayment(p.id)}
-                          disabled={deletingId === p.id}
-                          className="text-[10px] font-medium px-2 py-1 rounded transition-colors"
-                          style={{ background: 'rgba(224,82,82,0.1)', color: 'var(--danger)' }}
-                          aria-label="Delete payment"
-                        >
-                          {deletingId === p.id ? '…' : '✕'}
-                        </button>
-                      </div>
+                  <div key={p.id} className="p-4 rounded-xl bg-[var(--obsidian-3)] border border-gold/5 flex items-center justify-between gap-4">
+                    <div className="flex-1 min-w-0">
+                      <p className={`text-sm font-bold truncate ${p.isPaid ? 'text-[var(--success)] line-through' : 'text-[var(--ivory)]'}`}>
+                        {p.title}
+                      </p>
+                      <p className={`text-xs font-bold mt-1 ${p.isPaid ? 'text-[var(--success)]' : 'text-[var(--gold)]'}`}>
+                        {formatINR(p.amount)}
+                      </p>
                     </div>
-                  </li>
+                    <div className="flex gap-2">
+                       <button onClick={() => { setEditPayment(p); setShowPaymentModal(true) }} className="text-[var(--muted-light)] hover:text-[var(--ivory)]">
+                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                       </button>
+                    </div>
+                  </div>
                 ))}
-              </ul>
+              </div>
             )}
           </section>
         </div>
       </aside>
 
-      {/* Add / Edit modal */}
-      {showModal && (
+      {showPaymentModal && (
         <AddPaymentModal
           defaultDate={date}
           editPayment={editPayment}
           rate={rate}
-          onClose={() => setShowModal(false)}
+          onClose={() => setShowPaymentModal(false)}
           onSave={(saved) => {
-            if (editPayment) {
-              onPaymentUpdate(saved)
-            } else {
-              onPaymentAdd(saved)
-            }
-            setShowModal(false)
+            if (editPayment) onPaymentUpdate(saved)
+            else onPaymentAdd(saved)
+            setShowPaymentModal(false)
+          }}
+        />
+      )}
+
+      {showExpenseModal && (
+        <AddExpenseModal
+          date={date}
+          categories={categories}
+          onClose={() => setShowExpenseModal(false)}
+          onSuccess={() => {
+            onExpenseAdd()
+            setShowExpenseModal(false)
           }}
         />
       )}

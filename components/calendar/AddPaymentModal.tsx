@@ -75,7 +75,7 @@ export default function AddPaymentModal({ defaultDate, editPayment, onClose, onS
       >
         {/* Modal panel */}
         <div
-          className="w-full max-w-sm rounded-xl p-6 space-y-5"
+          className="w-full max-w-sm rounded-xl p-6 space-y-5 animate-in zoom-in-95 duration-200"
           style={{ background: 'var(--obsidian-2)', border: '1px solid var(--border-light)' }}
           onClick={(e) => e.stopPropagation()}
           role="dialog"
