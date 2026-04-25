@@ -11,7 +11,9 @@ import TodayBanner from '@/components/calendar/TodayBanner'
 import NotificationInit from '@/components/calendar/NotificationInit'
 import { getScheduledPaymentsForDate, getScheduledPaymentsByMonth } from '@/lib/db/scheduledPayments'
 import { getAllExpensesForMonth } from '@/lib/db/expenses'
+import { getSavingsBalance } from '@/lib/db/savings'
 import FinanceCalendar from '@/components/calendar/FinanceCalendar'
+import { SavingsTransactionForm } from '@/components/forms/SavingsTransactionForm'
 import { redirect } from 'next/navigation'
 
 function getCurrentMonth(): string {
@@ -35,13 +37,14 @@ export default async function DashboardPage() {
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
   })()
 
-  const [report, categories, usdToINR, todayPayments, monthExpenses, monthPayments] = await Promise.all([
+  const [report, categories, usdToINR, todayPayments, monthExpenses, monthPayments, totalSavings] = await Promise.all([
     getCachedMonthlyReport(uid, monthYear),
     getCachedCategories(uid),
     getUSDtoINRRate(),
     getScheduledPaymentsForDate(uid, today),
     getAllExpensesForMonth(uid, monthYear),
     getScheduledPaymentsByMonth(uid, monthYear),
+    getSavingsBalance(uid),
   ])
   const insights = report ? generateInsights(report) : []
 
@@ -95,8 +98,8 @@ export default async function DashboardPage() {
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           <MetricCard label="Total Income" value={report?.totalIncome ?? 0} rate={usdToINR} />
           <MetricCard label="Total Expenses" value={report?.totalExpenses ?? 0} rate={usdToINR} />
-          <MetricCard label="Actual Savings" value={report?.actualSavings ?? 0} rate={usdToINR} />
-          <MetricCard label="Target Savings" value={report?.targetSavings ?? 0} rate={usdToINR} />
+          <MetricCard label="Monthly Savings" value={report?.actualSavings ?? 0} rate={usdToINR} href="/reports" />
+          <MetricCard label="Total Savings Bucket" value={totalSavings} rate={usdToINR} variant="gold" href="/savings" />
           <MetricCard label="Safe to Spend" value={report?.safeToSpend ?? 0} rate={usdToINR} />
           <MetricCard label="Savings Margin" value={report?.savingsMargin ?? 0} rate={usdToINR} />
         </div>

@@ -91,6 +91,15 @@ export interface ScheduledPayment {
   updatedAt: Timestamp
 }
 
+export interface SavingsTransaction {
+  id: string
+  amount: number // positive for deposit, negative for withdrawal
+  date: string   // YYYY-MM-DD
+  note?: string
+  createdAt: Timestamp
+  updatedAt: Timestamp
+}
+
 export type ActionResult =
   | { success: true }
   | { success: false; errors: Record<string, string[]> }

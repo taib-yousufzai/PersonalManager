@@ -34,3 +34,10 @@ export const SavingsGoalSchema = z.object({
   (data) => data.type !== 'percentage' || (data.value >= 1 && data.value <= 100),
   { message: 'Percentage must be between 1 and 100', path: ['value'] }
 )
+
+export const SavingsTransactionSchema = z.object({
+  amount: z.number().positive(),
+  type: z.enum(['deposit', 'withdrawal']),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  note: z.string().max(200).optional()
+})

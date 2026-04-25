@@ -1,0 +1,3 @@
+'use client' // Wait, server actions should be 'use server' if in separate file?
+// Actually, in this project, actions are usually 'use server'.
+// Let me check app/actions/expenses.ts.
