@@ -7,9 +7,10 @@ import { SavingsTransactionSchema } from '@/lib/validation/schemas'
 import type { ActionResult } from '@/lib/types'
 
 function revalidateAll(uid: string) {
-  revalidateTag(`user-${uid}`) // Simplified revalidateTag
+  revalidateTag(`user-${uid}`, 'max')
   revalidatePath('/')
   revalidatePath('/reports')
+  revalidatePath('/savings')
 }
 
 export async function createSavingsTransaction(data: unknown): Promise<ActionResult> {
