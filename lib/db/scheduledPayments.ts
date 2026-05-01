@@ -48,7 +48,8 @@ export async function createScheduledPayment(
   const now = FieldValue.serverTimestamp()
   const ref = col(uid).doc()
   await ref.set({ ...data, createdAt: now, updatedAt: now })
-  return { id: ref.id, ...data, createdAt: now as never, updatedAt: now as never }
+  const fakeTimestamp = new Date().toISOString() as never
+  return { id: ref.id, ...data, createdAt: fakeTimestamp, updatedAt: fakeTimestamp }
 }
 
 export async function updateScheduledPayment(
