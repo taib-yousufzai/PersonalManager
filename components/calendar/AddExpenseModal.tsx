@@ -2,16 +2,17 @@
 
 import { createPortal } from 'react-dom'
 import { ExpenseForm } from '@/components/forms/ExpenseForm'
-import type { Category } from '@/lib/types'
+import type { Category, Expense } from '@/lib/types'
 
 interface Props {
   date: string
   categories: Category[]
+  editExpense?: Expense | null
   onClose: () => void
   onSuccess: () => void
 }
 
-export default function AddExpenseModal({ date, categories, onClose, onSuccess }: Props) {
+export default function AddExpenseModal({ date, categories, editExpense, onClose, onSuccess }: Props) {
   if (typeof document === 'undefined') return null
 
   return createPortal(
@@ -29,7 +30,7 @@ export default function AddExpenseModal({ date, categories, onClose, onSuccess }
       >
         <div className="flex items-center justify-between mb-2">
           <h2 className="text-base font-semibold" style={{ color: 'var(--ivory)' }}>
-            Add Expense for {date}
+            {editExpense ? 'Edit Expense' : `Add Expense for ${date}`}
           </h2>
           <button
             onClick={onClose}
@@ -42,8 +43,8 @@ export default function AddExpenseModal({ date, categories, onClose, onSuccess }
 
         <ExpenseForm
           categories={categories}
-          existing={undefined}
-          initialDate={date}
+          existing={editExpense ?? undefined}
+          initialDate={editExpense?.date || date}
           onSuccess={() => {
             onSuccess()
             onClose()

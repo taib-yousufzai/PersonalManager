@@ -49,6 +49,7 @@ export default function DayDrawer({
   const [showPaymentModal, setShowPaymentModal] = useState(false)
   const [showExpenseModal, setShowExpenseModal] = useState(false)
   const [editPayment, setEditPayment] = useState<ScheduledPayment | null>(null)
+  const [editExpense, setEditExpense] = useState<Expense | null>(null)
   const [markingId, setMarkingId] = useState<string | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
 
@@ -96,7 +97,7 @@ export default function DayDrawer({
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-[10px] font-bold uppercase tracking-widest text-[var(--muted)]">Expenses</h3>
               <button
-                onClick={() => setShowExpenseModal(true)}
+                onClick={() => { setEditExpense(null); setShowExpenseModal(true) }}
                 className="text-[11px] font-bold px-3 py-1.5 rounded-lg bg-[var(--obsidian-4)] text-[var(--ivory)] border border-[var(--border-light)]"
               >
                 + Add Expense
@@ -118,11 +119,20 @@ export default function DayDrawer({
               <div className="space-y-3">
                 {expenses.map((e) => (
                   <div key={e.id} className="flex items-center justify-between p-4 rounded-xl bg-[var(--obsidian-3)] border border-white/5">
-                    <div>
-                      <p className="text-sm font-bold text-[var(--ivory)]">{catName(e.categoryId)}</p>
-                      {e.note && <p className="text-xs text-[var(--muted)] mt-0.5">{e.note}</p>}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-bold text-[var(--ivory)] truncate">{catName(e.categoryId)}</p>
+                      {e.note && <p className="text-xs text-[var(--muted)] mt-0.5 truncate">{e.note}</p>}
                     </div>
-                    <p className="text-sm font-bold text-[var(--danger)]">{formatINR(e.amount)}</p>
+                    <div className="flex items-center gap-3 ml-2 shrink-0">
+                      <p className="text-sm font-bold text-[var(--danger)]">{formatINR(e.amount)}</p>
+                      <button
+                        onClick={() => { setEditExpense(e); setShowExpenseModal(true) }}
+                        className="text-[var(--muted-light)] hover:text-[var(--ivory)] transition-colors"
+                        aria-label="Edit expense"
+                      >
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -188,10 +198,12 @@ export default function DayDrawer({
         <AddExpenseModal
           date={date}
           categories={categories}
-          onClose={() => setShowExpenseModal(false)}
+          editExpense={editExpense}
+          onClose={() => { setShowExpenseModal(false); setEditExpense(null) }}
           onSuccess={() => {
             onExpenseAdd()
             setShowExpenseModal(false)
+            setEditExpense(null)
           }}
         />
       )}
