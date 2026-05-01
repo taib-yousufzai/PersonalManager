@@ -50,8 +50,8 @@ export default function DayDrawer({
   const [showExpenseModal, setShowExpenseModal] = useState(false)
   const [editPayment, setEditPayment] = useState<ScheduledPayment | null>(null)
   const [editExpense, setEditExpense] = useState<Expense | null>(null)
-  const [markingId, setMarkingId] = useState<string | null>(null)
-  const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [deletingPaymentId, setDeletingPaymentId] = useState<string | null>(null)
+  const [deletingExpenseId, setDeletingExpenseId] = useState<string | null>(null)
 
   useEffect(() => {
     document.body.style.overflow = 'hidden'
@@ -60,6 +60,32 @@ export default function DayDrawer({
 
   const catName = (id: string) => categories.find((c) => c.id === id)?.name ?? 'Uncategorised'
   const totalSpent = expenses.reduce((s, e) => s + (e?.amount || 0), 0)
+
+  const handleDeleteExpense = async (id: string) => {
+    if (deletingExpenseId) return
+    setDeletingExpenseId(id)
+    try {
+      await fetch(`/api/expenses/${id}`, { method: 'DELETE' })
+      onExpenseAdd() // triggers a reload
+    } catch {
+      // silent — UI stays consistent on reload
+    } finally {
+      setDeletingExpenseId(null)
+    }
+  }
+
+  const handleDeletePayment = async (id: string) => {
+    if (deletingPaymentId) return
+    setDeletingPaymentId(id)
+    try {
+      const res = await fetch(`/api/scheduled-payments/${id}`, { method: 'DELETE' })
+      if (res.ok) onPaymentDelete(id)
+    } catch {
+      // silent
+    } finally {
+      setDeletingPaymentId(null)
+    }
+  }
 
   if (typeof document === 'undefined') return null
 
@@ -123,7 +149,7 @@ export default function DayDrawer({
                       <p className="text-sm font-bold text-[var(--ivory)] truncate">{catName(e.categoryId)}</p>
                       {e.note && <p className="text-xs text-[var(--muted)] mt-0.5 truncate">{e.note}</p>}
                     </div>
-                    <div className="flex items-center gap-3 ml-2 shrink-0">
+                    <div className="flex items-center gap-2 ml-2 shrink-0">
                       <p className="text-sm font-bold text-[var(--danger)]">{formatINR(e.amount)}</p>
                       <button
                         onClick={() => { setEditExpense(e); setShowExpenseModal(true) }}
@@ -131,6 +157,17 @@ export default function DayDrawer({
                         aria-label="Edit expense"
                       >
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                      </button>
+                      <button
+                        onClick={() => handleDeleteExpense(e.id)}
+                        disabled={deletingExpenseId === e.id}
+                        className="text-[var(--muted-light)] hover:text-[var(--danger)] transition-colors disabled:opacity-40"
+                        aria-label="Delete expense"
+                      >
+                        {deletingExpenseId === e.id
+                          ? <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="animate-spin"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+                          : <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                        }
                       </button>
                     </div>
                   </div>
@@ -167,10 +204,25 @@ export default function DayDrawer({
                         {formatINR(p.amount)}
                       </p>
                     </div>
-                    <div className="flex gap-2">
-                       <button onClick={() => { setEditPayment(p); setShowPaymentModal(true) }} className="text-[var(--muted-light)] hover:text-[var(--ivory)]">
-                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                       </button>
+                    <div className="flex gap-2 items-center">
+                      <button
+                        onClick={() => { setEditPayment(p); setShowPaymentModal(true) }}
+                        className="text-[var(--muted-light)] hover:text-[var(--ivory)] transition-colors"
+                        aria-label="Edit payment"
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                      </button>
+                      <button
+                        onClick={() => handleDeletePayment(p.id)}
+                        disabled={deletingPaymentId === p.id}
+                        className="text-[var(--muted-light)] hover:text-[var(--danger)] transition-colors disabled:opacity-40"
+                        aria-label="Delete payment"
+                      >
+                        {deletingPaymentId === p.id
+                          ? <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="animate-spin"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+                          : <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                        }
+                      </button>
                     </div>
                   </div>
                 ))}

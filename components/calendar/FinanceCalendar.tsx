@@ -194,6 +194,60 @@ export default function FinanceCalendar({
         </span>
       </div>
 
+      {/* Total Required to Spend card */}
+      {(() => {
+        const totalRequired = payments.reduce((s, p) => s + p.amount, 0)
+        const totalPaid = payments.filter((p) => p.isPaid).reduce((s, p) => s + p.amount, 0)
+        const totalUnpaid = payments.filter((p) => !p.isPaid).reduce((s, p) => s + p.amount, 0)
+        if (totalRequired === 0) return null
+        return (
+          <div
+            className="rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+            style={{
+              background: 'linear-gradient(135deg, rgba(201,168,76,0.1) 0%, rgba(201,168,76,0.04) 100%)',
+              border: '1px solid rgba(201,168,76,0.25)',
+            }}
+          >
+            <div className="flex items-center gap-3">
+              <div
+                className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+                style={{ background: 'rgba(201,168,76,0.18)' }}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="2" y="5" width="20" height="14" rx="2"/>
+                  <path d="M2 10h20"/>
+                </svg>
+              </div>
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--gold)' }}>
+                  Total Required to Spend
+                </p>
+                <p className="text-2xl font-bold mt-0.5" style={{ color: 'var(--gold-light)' }}>
+                  {formatINR(totalRequired)}
+                </p>
+                <p className="text-xs mt-1" style={{ color: 'var(--muted-light)' }}>
+                  Scheduled payments for {monthLabel(monthYear)}
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-4 sm:gap-6 pl-1 sm:pl-0">
+              <div className="text-center">
+                <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: 'var(--muted)' }}>Paid</p>
+                <p className="text-base font-bold" style={{ color: 'var(--success)' }}>{formatINR(totalPaid)}</p>
+              </div>
+              <div
+                className="w-px self-stretch"
+                style={{ background: 'rgba(201,168,76,0.2)' }}
+              />
+              <div className="text-center">
+                <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: 'var(--muted)' }}>Remaining</p>
+                <p className="text-base font-bold" style={{ color: totalUnpaid > 0 ? 'var(--danger)' : 'var(--success)' }}>{formatINR(totalUnpaid)}</p>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
       {/* Calendar grid */}
       <div
         className="rounded-2xl overflow-hidden shadow-xl"
