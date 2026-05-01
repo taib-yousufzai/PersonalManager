@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import type { Expense, ScheduledPayment, Category } from '@/lib/types'
 import { formatINR } from '@/lib/currency'
 import AddPaymentModal from './AddPaymentModal'
@@ -59,7 +60,9 @@ export default function DayDrawer({
   const catName = (id: string) => categories.find((c) => c.id === id)?.name ?? 'Uncategorised'
   const totalSpent = expenses.reduce((s, e) => s + (e?.amount || 0), 0)
 
-  return (
+  if (typeof document === 'undefined') return null
+
+  return createPortal(
     <>
       <div
         className="fixed inset-0 z-[40] bg-black/60 backdrop-blur-[2px]"
@@ -192,6 +195,7 @@ export default function DayDrawer({
           }}
         />
       )}
-    </>
+    </>,
+    document.body
   )
 }

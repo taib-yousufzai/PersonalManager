@@ -1,5 +1,6 @@
 'use client'
 
+import { createPortal } from 'react-dom'
 import { ExpenseForm } from '@/components/forms/ExpenseForm'
 import type { Category } from '@/lib/types'
 
@@ -11,7 +12,9 @@ interface Props {
 }
 
 export default function AddExpenseModal({ date, categories, onClose, onSuccess }: Props) {
-  return (
+  if (typeof document === 'undefined') return null
+
+  return createPortal(
     <div
       className="fixed inset-0 z-[60] flex items-center justify-center p-4 backdrop-blur-sm"
       style={{ background: 'rgba(0,0,0,0.6)' }}
@@ -48,6 +51,7 @@ export default function AddExpenseModal({ date, categories, onClose, onSuccess }
           onCancel={onClose}
         />
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }

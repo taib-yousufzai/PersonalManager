@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
 import type { ScheduledPayment } from '@/lib/types'
 
 interface Props {
@@ -65,7 +66,9 @@ export default function AddPaymentModal({ defaultDate, editPayment, onClose, onS
     }
   }
 
-  return (
+  if (typeof document === 'undefined') return null
+
+  return createPortal(
     <>
       {/* Modal backdrop */}
       <div
@@ -223,6 +226,7 @@ export default function AddPaymentModal({ defaultDate, editPayment, onClose, onS
           </form>
         </div>
       </div>
-    </>
+    </>,
+    document.body
   )
 }
