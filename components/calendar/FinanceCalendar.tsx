@@ -1,12 +1,13 @@
 'use client'
 
 import { useState, useCallback } from 'react'
-import type { Expense, ScheduledPayment, Category } from '@/lib/types'
+import type { Expense, ScheduledPayment, Category, Income } from '@/lib/types'
 import DayDrawer from './DayDrawer'
 
 interface Props {
   initialExpenses: Expense[]
   initialPayments: ScheduledPayment[]
+  initialIncomes: Income[]
   categories: Category[]
   rate: number
   initialMonthYear: string // YYYY-MM
@@ -56,6 +57,7 @@ function shiftMonth(monthYear: string, delta: 1 | -1) {
 export default function FinanceCalendar({
   initialExpenses,
   initialPayments,
+  initialIncomes,
   categories,
   rate,
   initialMonthYear,
@@ -63,6 +65,7 @@ export default function FinanceCalendar({
   const [monthYear, setMonthYear] = useState(initialMonthYear)
   const [expenses, setExpenses] = useState<Expense[]>(initialExpenses)
   const [payments, setPayments] = useState<ScheduledPayment[]>(initialPayments)
+  const [incomes, setIncomes] = useState<Income[]>(initialIncomes)
   const [loading, setLoading] = useState(false)
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
 
@@ -72,14 +75,17 @@ export default function FinanceCalendar({
   const loadMonth = useCallback(async (my: string) => {
     setLoading(true)
     try {
-      const [expRes, payRes] = await Promise.all([
+      const [expRes, payRes, incRes] = await Promise.all([
         fetch(`/api/expenses?monthYear=${my}&page=all`),
         fetch(`/api/scheduled-payments?monthYear=${my}`),
+        fetch(`/api/income?monthYear=${my}`),
       ])
       const expData = await expRes.json()
       const payData = await payRes.json()
+      const incData = await incRes.json()
       setExpenses(expData.expenses ?? [])
       setPayments(payData.payments ?? [])
+      setIncomes(incData.incomes ?? [])
     } catch {
       // silent — stale data retained
     } finally {
@@ -103,6 +109,12 @@ export default function FinanceCalendar({
   const paymentByDay = payments.reduce<Record<string, ScheduledPayment[]>>((acc, p) => {
     if (!acc[p.date]) acc[p.date] = []
     acc[p.date].push(p)
+    return acc
+  }, {})
+
+  const incomeByDay = incomes.reduce<Record<string, Income[]>>((acc, i) => {
+    if (!acc[i.date]) acc[i.date] = []
+    acc[i.date].push(i)
     return acc
   }, {})
 
@@ -136,6 +148,10 @@ export default function FinanceCalendar({
   }
 
   const handleExpenseAdd = () => {
+    loadMonth(monthYear)
+  }
+
+  const handleIncomeAdd = () => {
     loadMonth(monthYear)
   }
 
@@ -373,6 +389,7 @@ export default function FinanceCalendar({
           date={selectedDate}
           expenses={expenseByDay[selectedDate] ?? []}
           payments={paymentByDay[selectedDate] ?? []}
+          incomes={incomeByDay[selectedDate] ?? []}
           categories={categories}
           rate={rate}
           onClose={() => setSelectedDate(null)}
@@ -380,6 +397,7 @@ export default function FinanceCalendar({
           onPaymentDelete={handlePaymentDelete}
           onPaymentAdd={handlePaymentAdd}
           onExpenseAdd={handleExpenseAdd}
+          onIncomeAdd={handleIncomeAdd}
         />
       )}
     </div>

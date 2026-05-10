@@ -3,6 +3,7 @@ import { verifySession } from '@/lib/firebase/admin'
 import { getCachedCategories } from '@/lib/cache'
 import { getAllExpensesForMonth } from '@/lib/db/expenses'
 import { getScheduledPaymentsByMonth } from '@/lib/db/scheduledPayments'
+import { getIncomeForMonth } from '@/lib/db/income'
 import { getUSDtoINRRate } from '@/lib/currency'
 import FinanceCalendar from '@/components/calendar/FinanceCalendar'
 
@@ -26,9 +27,10 @@ export default async function CalendarPage() {
 
   const monthYear = getCurrentMonthYear()
 
-  const [expenses, payments, categories, rate] = await Promise.all([
+  const [expenses, payments, incomes, categories, rate] = await Promise.all([
     getAllExpensesForMonth(uid, monthYear),
     getScheduledPaymentsByMonth(uid, monthYear),
+    getIncomeForMonth(uid, monthYear),
     getCachedCategories(uid),
     getUSDtoINRRate(),
   ])
@@ -38,6 +40,7 @@ export default async function CalendarPage() {
       <FinanceCalendar
         initialExpenses={expenses}
         initialPayments={payments}
+        initialIncomes={incomes}
         categories={categories}
         rate={rate}
         initialMonthYear={monthYear}

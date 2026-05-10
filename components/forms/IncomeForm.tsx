@@ -12,6 +12,7 @@ type FieldErrors = Partial<Record<keyof IncomeFormData, string[]>>
 
 interface IncomeFormProps {
   existing?: Income
+  initialDate?: string   // YYYY-MM-DD, used when no existing income
   onSuccess?: () => void
   onCancel?: () => void
 }
@@ -36,13 +37,13 @@ const labelStyle: React.CSSProperties = {
   fontWeight: 600,
 }
 
-export function IncomeForm({ existing, onSuccess, onCancel }: IncomeFormProps) {
+export function IncomeForm({ existing, initialDate, onSuccess, onCancel }: IncomeFormProps) {
   const { selectedMonth } = useMonth()
   const [isPending, startTransition] = useTransition()
 
   const [amount, setAmount] = useState(existing ? String(existing.amount) : '')
   const [source, setSource] = useState(existing?.source ?? '')
-  const [date, setDate] = useState(existing?.date ?? today())
+  const [date, setDate] = useState(existing?.date ?? initialDate ?? today())
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({})
   const [rootError, setRootError] = useState<string | null>(null)
 
@@ -51,7 +52,7 @@ export function IncomeForm({ existing, onSuccess, onCancel }: IncomeFormProps) {
       amount: parseFloat(amount),
       source,
       date,
-      monthYear: existing?.monthYear ?? selectedMonth,
+      monthYear: existing?.monthYear ?? (initialDate && !existing ? initialDate.slice(0, 7) : selectedMonth),
     })
     if (!result.success) {
       setFieldErrors(result.error.flatten().fieldErrors as FieldErrors)

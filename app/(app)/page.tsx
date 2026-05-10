@@ -11,6 +11,7 @@ import TodayBanner from '@/components/calendar/TodayBanner'
 import NotificationInit from '@/components/calendar/NotificationInit'
 import { getScheduledPaymentsForDate, getScheduledPaymentsByMonth } from '@/lib/db/scheduledPayments'
 import { getAllExpensesForMonth } from '@/lib/db/expenses'
+import { getIncomeForMonth } from '@/lib/db/income'
 import { getSavingsBalance } from '@/lib/db/savings'
 import FinanceCalendar from '@/components/calendar/FinanceCalendar'
 import { SavingsTransactionForm } from '@/components/forms/SavingsTransactionForm'
@@ -37,13 +38,14 @@ export default async function DashboardPage() {
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
   })()
 
-  const [report, categories, usdToINR, todayPayments, monthExpenses, monthPayments, totalSavings] = await Promise.all([
+  const [report, categories, usdToINR, todayPayments, monthExpenses, monthPayments, monthIncomes, totalSavings] = await Promise.all([
     getCachedMonthlyReport(uid, monthYear),
     getCachedCategories(uid),
     getUSDtoINRRate(),
     getScheduledPaymentsForDate(uid, today),
     getAllExpensesForMonth(uid, monthYear),
     getScheduledPaymentsByMonth(uid, monthYear),
+    getIncomeForMonth(uid, monthYear),
     getSavingsBalance(uid),
   ])
   const insights = report ? generateInsights(report) : []
@@ -110,6 +112,7 @@ export default async function DashboardPage() {
         <FinanceCalendar
           initialExpenses={monthExpenses}
           initialPayments={monthPayments}
+          initialIncomes={monthIncomes}
           categories={categories}
           rate={usdToINR}
           initialMonthYear={monthYear}

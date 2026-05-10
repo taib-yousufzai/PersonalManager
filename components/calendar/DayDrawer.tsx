@@ -2,15 +2,17 @@
 
 import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
-import type { Expense, ScheduledPayment, Category } from '@/lib/types'
+import type { Expense, ScheduledPayment, Category, Income } from '@/lib/types'
 import { formatINR } from '@/lib/currency'
 import AddPaymentModal from './AddPaymentModal'
 import AddExpenseModal from './AddExpenseModal'
+import AddIncomeModal from './AddIncomeModal'
 
 interface Props {
   date: string
   expenses: Expense[]
   payments: ScheduledPayment[]
+  incomes: Income[]
   categories: Category[]
   rate: number
   onClose: () => void
@@ -18,6 +20,7 @@ interface Props {
   onPaymentDelete: (id: string) => void
   onPaymentAdd: (p: ScheduledPayment) => void
   onExpenseAdd: () => void
+  onIncomeAdd: () => void
 }
 
 function friendlyDate(iso: string) {
@@ -38,6 +41,7 @@ export default function DayDrawer({
   date,
   expenses = [],
   payments = [],
+  incomes = [],
   categories = [],
   rate,
   onClose,
@@ -45,9 +49,11 @@ export default function DayDrawer({
   onPaymentDelete,
   onPaymentAdd,
   onExpenseAdd,
+  onIncomeAdd,
 }: Props) {
   const [showPaymentModal, setShowPaymentModal] = useState(false)
   const [showExpenseModal, setShowExpenseModal] = useState(false)
+  const [showIncomeModal, setShowIncomeModal] = useState(false)
   const [editPayment, setEditPayment] = useState<ScheduledPayment | null>(null)
   const [editExpense, setEditExpense] = useState<Expense | null>(null)
   const [deletingPaymentId, setDeletingPaymentId] = useState<string | null>(null)
@@ -229,6 +235,45 @@ export default function DayDrawer({
               </div>
             )}
           </section>
+
+          {/* Income */}
+          <section>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-[10px] font-bold uppercase tracking-widest text-[var(--muted)]">Income</h3>
+              <button
+                onClick={() => setShowIncomeModal(true)}
+                className="text-[11px] font-bold px-3 py-1.5 rounded-lg bg-[var(--obsidian-4)] text-[var(--success)] border border-[var(--success)]/30"
+              >
+                + Add Income
+              </button>
+            </div>
+
+            {incomes.length > 0 && (
+              <div className="mb-4 p-4 rounded-xl bg-[var(--success)]/5 border border-[var(--success)]/10">
+                <p className="text-[10px] text-[var(--muted-light)] uppercase font-bold">Total Income</p>
+                <p className="text-xl font-bold text-[var(--success)]">
+                  {formatINR(incomes.reduce((s, i) => s + (i?.amount || 0), 0))}
+                </p>
+              </div>
+            )}
+
+            {incomes.length === 0 ? (
+              <div className="py-10 text-center border-2 border-dashed border-[var(--border-light)] rounded-2xl">
+                <p className="text-xs text-[var(--muted)]">No income recorded</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {incomes.map((income) => (
+                  <div key={income.id} className="flex items-center justify-between p-4 rounded-xl bg-[var(--obsidian-3)] border border-white/5">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-bold text-[var(--ivory)] truncate">{income.source}</p>
+                    </div>
+                    <p className="text-sm font-bold text-[var(--success)] ml-2 shrink-0">{formatINR(income.amount)}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
         </div>
       </aside>
 
@@ -256,6 +301,17 @@ export default function DayDrawer({
             onExpenseAdd()
             setShowExpenseModal(false)
             setEditExpense(null)
+          }}
+        />
+      )}
+
+      {showIncomeModal && (
+        <AddIncomeModal
+          date={date}
+          onClose={() => setShowIncomeModal(false)}
+          onSuccess={() => {
+            onIncomeAdd()
+            setShowIncomeModal(false)
           }}
         />
       )}
